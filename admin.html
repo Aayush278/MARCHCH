@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>All Investors — MARCSFUNDHANG</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0D0F14;
+            --card: #151820;
+            --card2: #1a1f2e;
+            --border: #1E2530;
+            --gold: #F0B429;
+            --gold-dim: #d4a017;
+            --green: #00C896;
+            --red: #FF4D4D;
+            --white: #FFFFFF;
+            --grey: #8B95A1;
+            --grey-dim: #4a5568;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 5rem;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: rgba(21, 24, 32, 0.97);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 1.25rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-logo {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+
+        .nav-badge {
+            background: rgba(240, 180, 41, 0.12);
+            border: 1px solid rgba(240, 180, 41, 0.2);
+            color: var(--gold);
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 99px;
+        }
+
+        .btn-icon {
+            width: 34px;
+            height: 34px;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: var(--grey);
+        }
+
+        .btn-icon:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .btn-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* CONTAINER */
+        .container {
+            padding: 1.25rem;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            margin-bottom: 1.25rem;
+            animation: fadeUp 0.4s ease 0.05s both;
+        }
+
+        .page-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .btn-add {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--gold);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 0.55rem 1rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-add:hover {
+            background: var(--gold-dim);
+        }
+
+        .btn-add svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* SUMMARY BAR */
+        .summary-bar {
+            display: flex;
+            gap: 0.6rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+            scrollbar-width: none;
+        }
+
+        .summary-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .summary-pill {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 99px;
+            padding: 0.4rem 0.85rem;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .summary-pill span {
+            font-weight: 700;
+            margin-left: 0.3rem;
+        }
+
+        .summary-pill span.gold {
+            color: var(--gold);
+        }
+
+        .summary-pill span.green {
+            color: var(--green);
+        }
+
+        .summary-pill span.red {
+            color: var(--red);
+        }
+
+        /* SEARCH & FILTER */
+        .toolbar {
+            display: flex;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+            animation: fadeUp 0.4s ease 0.1s both;
+        }
+
+        .search-wrap {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--grey-dim);
+        }
+
+        .search-icon svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.7rem 0.85rem 0.7rem 2.5rem;
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            color: var(--white);
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--gold);
+        }
+
+        .search-input::placeholder {
+            color: var(--grey-dim);
+        }
+
+        .filter-btn {
+            width: 42px;
+            height: 42px;
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--grey);
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .filter-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* FILTER PANEL */
+        .filter-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+            animation: fadeUp 0.3s ease;
+        }
+
+        .filter-panel.open {
+            display: block;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 0.4rem 0.85rem;
+            border-radius: 99px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            background: transparent;
+            color: var(--grey);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .filter-chip.active {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(240, 180, 41, 0.08);
+        }
+
+        .filter-label {
+            font-size: 0.72rem;
+            color: var(--grey);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* INVESTOR LIST */
+        .investor-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            animation: fadeUp 0.4s ease 0.15s both;
+        }
+
+        .investor-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem;
+            text-decoration: none;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .investor-card:active {
+            transform: scale(0.98);
+        }
+
+        .investor-card:hover {
+            border-color: var(--gold);
+            background: var(--card2);
+        }
+
+        .inv-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #000;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .inv-avatar.suspended {
+            background: linear-gradient(135deg, var(--grey-dim), #333);
+            color: var(--grey);
+        }
+
+        .inv-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .inv-name {
+            font-size: 0.88rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .inv-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .inv-id {
+            font-size: 0.7rem;
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .inv-phone {
+            font-size: 0.7rem;
+            color: var(--grey);
+        }
+
+        .inv-right {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .inv-value {
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .inv-growth {
+            font-size: 0.72rem;
+            font-weight: 600;
+            margin-top: 0.2rem;
+        }
+
+        .inv-growth.positive {
+            color: var(--green);
+        }
+
+        .inv-growth.negative {
+            color: var(--red);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status-dot.active {
+            background: var(--green);
+        }
+
+        .status-dot.suspended {
+            background: var(--red);
+        }
+
+        /* EMPTY */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--grey);
+        }
+
+        .empty-state svg {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 0.75rem;
+            opacity: 0.4;
+        }
+
+        .empty-state p {
+            font-size: 0.85rem;
+        }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(21, 24, 32, 0.97);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 0.6rem 0;
+            padding-bottom: calc(0.6rem + env(safe-area-inset-bottom));
+            display: flex;
+            z-index: 100;
+        }
+
+        .bn-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            cursor: pointer;
+            padding: 0.4rem 0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .bn-icon {
+            width: 22px;
+            height: 22px;
+            transition: transform 0.2s;
+        }
+
+        .bn-label {
+            font-size: 0.62rem;
+            color: var(--grey);
+            font-weight: 500;
+        }
+
+        .bn-item.active .bn-label {
+            color: var(--gold);
+        }
+
+        .bn-item.active .bn-icon {
+            transform: scale(1.1);
+        }
+
+        .bn-item:active .bn-icon {
+            transform: scale(0.9);
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+
+            .container {
+                max-width: 900px;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="nav-left">
+            <div class="nav-logo">MARCSFUNDHANG</div>
+            <span class="nav-badge">ADMIN</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+            <button class="btn-icon" onclick="logout()" title="Logout">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-title">All Investors</div>
+                <a href="admin-add-client.html" class="btn-add">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    Add New
+                </a>
+            </div>
+            <div class="summary-bar">
+                <div class="summary-pill">Total <span class="gold" id="totalCount">0</span></div>
+                <div class="summary-pill">Active <span class="green" id="activeCount">0</span></div>
+                <div class="summary-pill">Suspended <span class="red" id="suspendedCount">0</span></div>
+                <div class="summary-pill">AUM <span class="gold" id="totalAUM">₹0</span></div>
+            </div>
+        </div>
+
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+            <div class="search-wrap">
+                <span class="search-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="M21 21l-4.35-4.35" />
+                    </svg>
+                </span>
+                <input class="search-input" type="text" id="searchInput" placeholder="Search name, email, ID..."
+                    oninput="filterList()" />
+            </div>
+            <button class="filter-btn" onclick="toggleFilter()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 6h16M7 12h10M10 18h4" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- FILTER PANEL -->
+        <div class="filter-panel" id="filterPanel">
+            <div class="filter-label">Status</div>
+            <div class="filter-row" style="margin-bottom:0.75rem;">
+                <button class="filter-chip active" data-filter="status" data-value="all"
+                    onclick="setFilter('status','all',this)">All</button>
+                <button class="filter-chip" data-filter="status" data-value="active"
+                    onclick="setFilter('status','active',this)">Active</button>
+                <button class="filter-chip" data-filter="status" data-value="suspended"
+                    onclick="setFilter('status','suspended',this)">Suspended</button>
+            </div>
+            <div class="filter-label">Sort By</div>
+            <div class="filter-row">
+                <button class="filter-chip active" data-filter="sort" data-value="name"
+                    onclick="setFilter('sort','name',this)">Name</button>
+                <button class="filter-chip" data-filter="sort" data-value="invested"
+                    onclick="setFilter('sort','invested',this)">Invested</button>
+                <button class="filter-chip" data-filter="sort" data-value="growth"
+                    onclick="setFilter('sort','growth',this)">Growth</button>
+                <button class="filter-chip" data-filter="sort" data-value="updated"
+                    onclick="setFilter('sort','updated',this)">Recent</button>
+            </div>
+        </div>
+
+        <!-- INVESTOR LIST -->
+        <div class="investor-list" id="investorList">
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M20 21a8 8 0 10-16 0" />
+                </svg>
+                <p>Loading investors...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+        <a class="bn-item" href="admin-dashboard.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+            </svg>
+            <span class="bn-label">Overview</span>
+        </a>
+        <a class="bn-item active" href="admin.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+            </svg>
+            <span class="bn-label" style="color:var(--gold)">Investors</span>
+        </a>
+        <a class="bn-item" href="admin-add-client.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="2">
+                <path d="M12 5v14M5 12h14" />
+            </svg>
+            <span class="bn-label">Add</span>
+        </a>
+        <a class="bn-item" href="admin-announcements.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="2">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
+            </svg>
+            <span class="bn-label">Announce</span>
+        </a>
+        <a class="bn-item" href="admin-reports.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+            </svg>
+            <span class="bn-label">Reports</span>
+        </a>
+    </div>
+
+    <script>
+        let allInvestors = [];
+        let activeFilters = { status: 'all', sort: 'name' };
+
+        async function init() {
+            const { data: { session } } = await db.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+            const { data: profile } = await db.from('profiles').select('role').eq('id', session.user.id).single();
+            if (!profile || profile.role !== 'admin') { window.location.href = 'index.html'; return; }
+            loadInvestors();
+        }
+
+        async function loadInvestors() {
+            const { data } = await db
+                .from('profiles')
+                .select('*, portfolios(*)')
+                .eq('role', 'client')
+                .order('created_at', { ascending: false });
+
+            allInvestors = data || [];
+            updateSummary();
+            renderList(allInvestors);
+        }
+
+        function updateSummary() {
+            const active = allInvestors.filter(i => i.is_active).length;
+            const suspended = allInvestors.filter(i => !i.is_active).length;
+            const totalAUM = allInvestors.reduce((s, i) => s + (i.portfolios?.[0]?.current_value || 0), 0);
+            document.getElementById('totalCount').textContent = allInvestors.length;
+            document.getElementById('activeCount').textContent = active;
+            document.getElementById('suspendedCount').textContent = suspended;
+            document.getElementById('totalAUM').textContent = '₹' + totalAUM.toLocaleString('en-IN');
+        }
+
+        function toggleFilter() {
+            document.getElementById('filterPanel').classList.toggle('open');
+        }
+
+        function setFilter(type, value, el) {
+            activeFilters[type] = value;
+            document.querySelectorAll(`[data-filter="${type}"]`).forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            filterList();
+        }
+
+        function filterList() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = allInvestors.filter(i => {
+                const matchSearch =
+                    (i.full_name || '').toLowerCase().includes(search) ||
+                    (i.email || '').toLowerCase().includes(search) ||
+                    (i.investor_id || '').toLowerCase().includes(search) ||
+                    (i.phone || '').includes(search);
+                const matchStatus =
+                    activeFilters.status === 'all' ||
+                    (activeFilters.status === 'active' && i.is_active) ||
+                    (activeFilters.status === 'suspended' && !i.is_active);
+                return matchSearch && matchStatus;
+            });
+
+            filtered.sort((a, b) => {
+                const pa = a.portfolios?.[0] || {};
+                const pb = b.portfolios?.[0] || {};
+                if (activeFilters.sort === 'invested') return (pb.invested_amount || 0) - (pa.invested_amount || 0);
+                if (activeFilters.sort === 'growth') {
+                    const ga = pa.invested_amount ? (pa.current_value - pa.invested_amount) / pa.invested_amount : 0;
+                    const gb = pb.invested_amount ? (pb.current_value - pb.invested_amount) / pb.invested_amount : 0;
+                    return gb - ga;
+                }
+                if (activeFilters.sort === 'updated') return new Date(pb.last_updated || 0) - new Date(pa.last_updated || 0);
+                return (a.full_name || '').localeCompare(b.full_name || '');
+            });
+
+            renderList(filtered);
+        }
+
+        function renderList(investors) {
+            const list = document.getElementById('investorList');
+            if (!investors.length) {
+                list.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>
+            <p>No investors found.</p>
+          </div>`;
+                return;
+            }
+
+            list.innerHTML = investors.map(inv => {
+                const p = inv.portfolios?.[0] || {};
+                const profit = (p.current_value || 0) - (p.invested_amount || 0);
+                const growth = p.invested_amount ? ((profit / p.invested_amount) * 100).toFixed(1) : '0.0';
+                const isProfit = profit >= 0;
+                const initial = (inv.full_name || '?')[0].toUpperCase();
+                return `
+          <a href="admin-client.html?id=${inv.id}" class="investor-card">
+            <div class="inv-avatar ${inv.is_active ? '' : 'suspended'}">${initial}</div>
+            <div class="inv-info">
+              <div class="inv-name">${inv.full_name || '-'}</div>
+              <div class="inv-meta">
+                <div class="status-dot ${inv.is_active ? 'active' : 'suspended'}"></div>
+                <span class="inv-id">${inv.investor_id || '-'}</span>
+                <span class="inv-phone">${inv.phone || ''}</span>
+              </div>
+            </div>
+            <div class="inv-right">
+              <div class="inv-value">₹${(p.current_value || 0).toLocaleString('en-IN')}</div>
+              <div class="inv-growth ${isProfit ? 'positive' : 'negative'}">
+                ${isProfit ? '▲' : '▼'} ${Math.abs(growth)}%
+              </div>
+            </div>
+          </a>`;
+            }).join('');
+        }
+
+        async function logout() {
+            await db.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        init();
+    </script>
+
+</body>
+
+</html>

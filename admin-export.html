@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Export Data — MARCSFUNDHANG</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0D0F14;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #151820;
+            border-bottom: 1px solid #1E2530;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #F0B429;
+            letter-spacing: 1px;
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid #1E2530;
+            color: #8B95A1;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout:hover {
+            border-color: #FF4D4D;
+            color: #FF4D4D;
+        }
+
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #151820;
+            border-right: 1px solid #1E2530;
+            padding: 1.5rem 0;
+            flex-shrink: 0;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: #8B95A1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar a:hover {
+            color: #fff;
+            background: #1E2530;
+        }
+
+        .sidebar a.active {
+            color: #F0B429;
+            border-left-color: #F0B429;
+            background: #1a1f2e;
+        }
+
+        .sidebar .section-title {
+            padding: 0.5rem 1.5rem;
+            color: #4a5568;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 1rem;
+        }
+
+        .main {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .page-sub {
+            color: #8B95A1;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+
+        .export-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .export-card {
+            background: #151820;
+            border: 1px solid #1E2530;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .export-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .export-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .export-desc {
+            color: #8B95A1;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 1.2rem;
+        }
+
+        .btn-export {
+            width: 100%;
+            padding: 0.75rem;
+            background: #F0B429;
+            color: #000;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn-export:hover {
+            background: #d4a017;
+        }
+
+        .btn-export:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .btn-export-outline {
+            width: 100%;
+            padding: 0.75rem;
+            background: transparent;
+            color: #F0B429;
+            font-weight: 700;
+            border: 1px solid #F0B429;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-export-outline:hover {
+            background: #F0B429;
+            color: #000;
+        }
+
+        .success-msg {
+            background: #0a2a1a;
+            border: 1px solid #00C896;
+            color: #00C896;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .preview-table {
+            background: #151820;
+            border: 1px solid #1E2530;
+            border-radius: 12px;
+            overflow: hidden;
+            overflow-x: auto;
+            margin-top: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        th {
+            background: #1E2530;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.78rem;
+            color: #8B95A1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 0.8rem 1rem;
+            font-size: 0.88rem;
+            border-bottom: 1px solid #1E2530;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #1a1f2e;
+        }
+
+        .positive {
+            color: #00C896;
+            font-weight: 600;
+        }
+
+        .negative {
+            color: #FF4D4D;
+            font-weight: 600;
+        }
+
+        .loading {
+            color: #8B95A1;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div class="logo">MARCSFUNDHANG</div>
+        <div style="display:flex;align-items:center;gap:1rem;">
+            <span style="color:#8B95A1;font-size:0.85rem;" id="adminName">Admin</span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="layout">
+        <div class="sidebar">
+            <div class="section-title">Main</div>
+            <a href="admin-dashboard.html">📊 Overview</a>
+            <a href="admin.html">👥 All Investors</a>
+            <a href="admin-add-client.html">➕ Add Investor</a>
+            <div class="section-title">Tools</div>
+            <a href="admin-announcements.html">📢 Announcements</a>
+            <a href="admin-import.html">📤 Import CSV</a>
+            <a href="admin-export.html" class="active">📥 Export Data</a>
+            <a href="admin-reports.html">📜 Report History</a>
+        </div>
+
+        <div class="main">
+            <div class="page-title">📥 Export Data</div>
+            <div class="page-sub">Download investor data for your records.</div>
+
+            <div class="success-msg" id="successMsg"></div>
+
+            <div class="export-grid">
+                <div class="export-card">
+                    <div class="export-icon">📊</div>
+                    <div class="export-title">All Investors — CSV</div>
+                    <div class="export-desc">
+                        Download complete investor data including names, emails, invested amounts,
+                        current values, growth % and status. Opens in Excel or Google Sheets.
+                    </div>
+                    <button class="btn-export" onclick="exportCSV()">⬇️ Download CSV</button>
+                </div>
+
+                <div class="export-card">
+                    <div class="export-icon">📋</div>
+                    <div class="export-title">All Transactions — CSV</div>
+                    <div class="export-desc">
+                        Download complete transaction history for all investors —
+                        dates, types, amounts, and remarks.
+                    </div>
+                    <button class="btn-export" onclick="exportTransactionsCSV()">⬇️ Download Transactions CSV</button>
+                </div>
+            </div>
+
+            <!-- DATA PREVIEW -->
+            <div style="font-size:1rem;font-weight:600;margin-bottom:1rem;">📋 Data Preview</div>
+            <div class="preview-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Investor ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>Invested (₹)</th>
+                            <th>Current Value (₹)</th>
+                            <th>Profit/Loss (₹)</th>
+                            <th>Growth %</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="previewTable">
+                        <tr>
+                            <td colspan="9" class="loading">Loading preview...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let investorData = [];
+
+        async function checkAuth() {
+            const { data: { session } } = await db.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+            const { data: profile } = await db.from('profiles').select('role, full_name').eq('id', session.user.id).single();
+            if (!profile || profile.role !== 'admin') { window.location.href = 'index.html'; return; }
+            document.getElementById('adminName').textContent = profile.full_name || 'Admin';
+            loadPreview();
+        }
+
+        async function loadPreview() {
+            const { data } = await db
+                .from('profiles')
+                .select('*, portfolios(*)')
+                .eq('role', 'client')
+                .order('created_at', { ascending: false });
+
+            investorData = data || [];
+            const tbody = document.getElementById('previewTable');
+
+            if (!investorData.length) {
+                tbody.innerHTML = '<tr><td colspan="9" class="loading">No investors found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = investorData.map(inv => {
+                const p = inv.portfolios?.[0] || {};
+                const profit = (p.current_value || 0) - (p.invested_amount || 0);
+                const growth = p.invested_amount ? ((profit / p.invested_amount) * 100).toFixed(2) : '0.00';
+                return `<tr>
+          <td style="color:#F0B429;font-weight:600;">${inv.investor_id || '-'}</td>
+          <td>${inv.full_name || '-'}</td>
+          <td style="color:#8B95A1">${inv.email || '-'}</td>
+          <td style="color:#8B95A1">${inv.phone || '-'}</td>
+          <td>₹${(p.invested_amount || 0).toLocaleString('en-IN')}</td>
+          <td>₹${(p.current_value || 0).toLocaleString('en-IN')}</td>
+          <td class="${profit >= 0 ? 'positive' : 'negative'}">${profit >= 0 ? '+₹' : '-₹'}${Math.abs(profit).toLocaleString('en-IN')}</td>
+          <td class="${profit >= 0 ? 'positive' : 'negative'}">${profit >= 0 ? '+' : ''}${growth}%</td>
+          <td>${inv.is_active ? '✅ Active' : '🚫 Suspended'}</td>
+        </tr>`;
+            }).join('');
+        }
+
+        function exportCSV() {
+            if (!investorData.length) { alert('No data to export.'); return; }
+            const headers = ['Investor ID', 'Full Name', 'Email', 'Mobile', 'Invested (Rs)', 'Current Value (Rs)', 'Profit/Loss (Rs)', 'Growth %', 'Investment Date', 'Status', 'Member Since'];
+            const rows = investorData.map(inv => {
+                const p = inv.portfolios?.[0] || {};
+                const profit = (p.current_value || 0) - (p.invested_amount || 0);
+                const growth = p.invested_amount ? ((profit / p.invested_amount) * 100).toFixed(2) : '0.00';
+                return [
+                    inv.investor_id || '',
+                    inv.full_name || '',
+                    inv.email || '',
+                    inv.phone || '',
+                    p.invested_amount || 0,
+                    p.current_value || 0,
+                    profit,
+                    growth + '%',
+                    p.investment_date || '',
+                    inv.is_active ? 'Active' : 'Suspended',
+                    new Date(inv.created_at).toLocaleDateString('en-IN')
+                ].join(',');
+            });
+            const csv = [headers.join(','), ...rows].join('\n');
+            downloadFile(csv, `MARCSFUNDHANG_Investors_${today()}.csv`, 'text/csv');
+            showSuccess('✅ Investor CSV downloaded successfully!');
+        }
+
+        async function exportTransactionsCSV() {
+            const { data } = await db
+                .from('transactions')
+                .select('*, profiles(investor_id, full_name)')
+                .order('date', { ascending: false });
+
+            if (!data || !data.length) { alert('No transactions to export.'); return; }
+            const headers = ['Investor ID', 'Investor Name', 'Date', 'Type', 'Amount (Rs)', 'Portfolio Value (Rs)', 'Remark'];
+            const rows = data.map(t => [
+                t.profiles?.investor_id || '',
+                t.profiles?.full_name || '',
+                t.date || '',
+                t.type || '',
+                t.amount || 0,
+                t.current_value_snapshot || 0,
+                (t.remark || '').replace(/,/g, ' ')
+            ].join(','));
+            const csv = [headers.join(','), ...rows].join('\n');
+            downloadFile(csv, `MARCSFUNDHANG_Transactions_${today()}.csv`, 'text/csv');
+            showSuccess('✅ Transactions CSV downloaded successfully!');
+        }
+
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename; a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function today() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('successMsg');
+            el.textContent = msg; el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 4000);
+        }
+
+        async function logout() {
+            await db.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        checkAuth();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard — MARCSFUNDHANG</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0D0F14;
+            --card: #151820;
+            --card2: #1a1f2e;
+            --border: #1E2530;
+            --gold: #F0B429;
+            --gold-dim: #d4a017;
+            --green: #00C896;
+            --red: #FF4D4D;
+            --white: #FFFFFF;
+            --grey: #8B95A1;
+            --grey-dim: #4a5568;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--white);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 5rem;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background: rgba(21, 24, 32, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 1.25rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-logo {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+
+        .nav-badge {
+            background: rgba(240, 180, 41, 0.12);
+            border: 1px solid rgba(240, 180, 41, 0.2);
+            color: var(--gold);
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 99px;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-admin {
+            font-size: 0.82rem;
+            color: var(--grey);
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            width: 34px;
+            height: 34px;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            border-color: var(--red);
+        }
+
+        /* ── CONTAINER ── */
+        .container {
+            padding: 1.25rem;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── GREETING ── */
+        .greeting {
+            margin-bottom: 1.5rem;
+            animation: fadeUp 0.4s ease 0.05s both;
+        }
+
+        .greeting-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .greeting-sub {
+            font-size: 0.8rem;
+            color: var(--grey);
+            margin-top: 0.2rem;
+        }
+
+        /* ── AUM HERO ── */
+        .aum-card {
+            background: linear-gradient(135deg, #1a1f2e 0%, #151820 100%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.4s ease 0.1s both;
+        }
+
+        .aum-card::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(240, 180, 41, 0.1), transparent 70%);
+        }
+
+        .aum-label {
+            font-size: 0.72rem;
+            color: var(--grey);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 0.4rem;
+        }
+
+        .aum-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: -0.5px;
+            margin-bottom: 0.75rem;
+        }
+
+        .aum-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .aum-stat {}
+
+        .aum-stat-val {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .aum-stat-label {
+            font-size: 0.68rem;
+            color: var(--grey);
+            margin-top: 0.1rem;
+        }
+
+        /* ── STATS GRID ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            animation: fadeUp 0.4s ease 0.15s both;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .stat-card:active {
+            transform: scale(0.97);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--grey);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .stat-value.green {
+            color: var(--green);
+        }
+
+        .stat-value.red {
+            color: var(--red);
+        }
+
+        .stat-value.gold {
+            color: var(--gold);
+        }
+
+        .stat-value.white {
+            color: var(--white);
+        }
+
+        .stat-sub {
+            font-size: 0.7rem;
+            color: var(--grey-dim);
+            margin-top: 0.2rem;
+        }
+
+        /* ── QUICK ACTIONS ── */
+        .section {
+            margin-bottom: 1.25rem;
+            animation: fadeUp 0.4s ease 0.2s both;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .action-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem;
+            text-decoration: none;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .action-card:active {
+            transform: scale(0.96);
+        }
+
+        .action-card:hover {
+            border-color: var(--gold);
+            background: var(--card2);
+        }
+
+        .action-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--card2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .action-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .action-sub {
+            font-size: 0.7rem;
+            color: var(--grey);
+            margin-top: 0.1rem;
+        }
+
+        /* ── RECENT TABLE ── */
+        .recent-section {
+            animation: fadeUp 0.4s ease 0.25s both;
+            margin-bottom: 1rem;
+        }
+
+        .recent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .see-all {
+            font-size: 0.78rem;
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .investor-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .investor-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0.9rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            text-decoration: none;
+            color: var(--white);
+            transition: all 0.2s;
+        }
+
+        .investor-item:active {
+            transform: scale(0.98);
+        }
+
+        .investor-item:hover {
+            border-color: var(--border);
+            background: var(--card2);
+        }
+
+        .inv-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #000;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .inv-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .inv-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .inv-id {
+            font-size: 0.7rem;
+            color: var(--gold);
+            margin-top: 0.1rem;
+        }
+
+        .inv-right {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .inv-value {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .inv-growth {
+            font-size: 0.72rem;
+            font-weight: 600;
+            margin-top: 0.1rem;
+        }
+
+        .inv-growth.positive {
+            color: var(--green);
+        }
+
+        .inv-growth.negative {
+            color: var(--red);
+        }
+
+        .inv-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 99px;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+
+        .badge-active {
+            background: rgba(0, 200, 150, 0.1);
+            color: var(--green);
+        }
+
+        .badge-suspended {
+            background: rgba(255, 77, 77, 0.1);
+            color: var(--red);
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--grey);
+        }
+
+        .empty-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ── BOTTOM NAV ── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(21, 24, 32, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 0.6rem 0;
+            padding-bottom: calc(0.6rem + env(safe-area-inset-bottom));
+            display: flex;
+            z-index: 100;
+        }
+
+        .bn-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            cursor: pointer;
+            padding: 0.4rem 0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .bn-icon {
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+
+        .bn-label {
+            font-size: 0.62rem;
+            color: var(--grey);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .bn-item.active .bn-label {
+            color: var(--gold);
+        }
+
+        .bn-item.active .bn-icon {
+            transform: scale(1.1);
+        }
+
+        .bn-item:active .bn-icon {
+            transform: scale(0.9);
+        }
+
+        /* ── DESKTOP ── */
+        @media (min-width: 768px) {
+            body {
+                display: flex;
+                flex-direction: column;
+                padding-bottom: 0;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+
+            .container {
+                max-width: 1100px;
+                padding: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .actions-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            /* Desktop sidebar layout */
+            .desktop-layout {
+                display: flex;
+                gap: 2rem;
+            }
+
+            .desktop-main {
+                flex: 1;
+            }
+
+            .desktop-sidebar {
+                width: 260px;
+                flex-shrink: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="nav-left">
+            <div class="nav-logo">MARCSFUNDHANG</div>
+            <span class="nav-badge">ADMIN</span>
+        </div>
+        <div class="nav-right">
+            <span class="nav-admin" id="adminName">Admin</span>
+            <button class="btn-logout" onclick="logout()" title="Logout">🚪</button>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- GREETING -->
+        <div class="greeting">
+            <div class="greeting-title">Good day, Admin 👋</div>
+            <div class="greeting-sub" id="greetingSub">Here's your portfolio overview</div>
+        </div>
+
+        <!-- AUM HERO -->
+        <div class="aum-card">
+            <div class="aum-label">Total Assets Under Management</div>
+            <div class="aum-value" id="totalAUM">₹0</div>
+            <div class="aum-row">
+                <div class="aum-stat">
+                    <div class="aum-stat-val" id="totalReturns">₹0</div>
+                    <div class="aum-stat-label">Total Returns Given</div>
+                </div>
+                <div style="width:1px;background:var(--border);"></div>
+                <div class="aum-stat">
+                    <div class="aum-stat-val" id="totalInvested">₹0</div>
+                    <div class="aum-stat-label">Total Invested</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATS GRID -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Investors</div>
+                <div class="stat-value white" id="totalInvestors">0</div>
+                <div class="stat-sub">All accounts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active</div>
+                <div class="stat-value green" id="activeInvestors">0</div>
+                <div class="stat-sub">Currently active</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Suspended</div>
+                <div class="stat-value red" id="suspendedInvestors">0</div>
+                <div class="stat-sub">Blocked accounts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg. Growth</div>
+                <div class="stat-value gold" id="avgGrowth">0%</div>
+                <div class="stat-sub">Across all portfolios</div>
+            </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="section">
+            <div class="section-title">⚡ Quick Actions</div>
+            <div class="actions-grid">
+                <a href="admin-add-client.html" class="action-card">
+                    <div class="action-icon">➕</div>
+                    <div>
+                        <div class="action-label">Add Investor</div>
+                        <div class="action-sub">New account</div>
+                    </div>
+                </a>
+                <a href="admin.html" class="action-card">
+                    <div class="action-icon">👥</div>
+                    <div>
+                        <div class="action-label">All Investors</div>
+                        <div class="action-sub">View & manage</div>
+                    </div>
+                </a>
+                <a href="admin-announcements.html" class="action-card">
+                    <div class="action-icon">📢</div>
+                    <div>
+                        <div class="action-label">Announce</div>
+                        <div class="action-sub">Post notice</div>
+                    </div>
+                </a>
+                <a href="admin-export.html" class="action-card">
+                    <div class="action-icon">📥</div>
+                    <div>
+                        <div class="action-label">Export</div>
+                        <div class="action-sub">Download data</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- RECENT INVESTORS -->
+        <div class="recent-section">
+            <div class="recent-header">
+                <div class="section-title">🕐 Recently Updated</div>
+                <a href="admin.html" class="see-all">See all →</a>
+            </div>
+            <div class="investor-list" id="recentList">
+                <div class="empty-state">
+                    <div class="empty-icon">⏳</div>
+                    <p style="font-size:0.85rem;color:var(--grey);">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+        <a class="bn-item active" href="admin-dashboard.html">
+            <span class="bn-icon">📊</span>
+            <span class="bn-label">Overview</span>
+        </a>
+        <a class="bn-item" href="admin.html">
+            <span class="bn-icon">👥</span>
+            <span class="bn-label">Investors</span>
+        </a>
+        <a class="bn-item" href="admin-add-client.html">
+            <span class="bn-icon">➕</span>
+            <span class="bn-label">Add</span>
+        </a>
+        <a class="bn-item" href="admin-announcements.html">
+            <span class="bn-icon">📢</span>
+            <span class="bn-label">Announce</span>
+        </a>
+        <a class="bn-item" href="admin-reports.html">
+            <span class="bn-icon">📜</span>
+            <span class="bn-label">Reports</span>
+        </a>
+    </div>
+
+    <script>
+        async function init() {
+            const { data: { session } } = await db.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+
+            const { data: profile } = await db
+                .from('profiles').select('role, full_name').eq('id', session.user.id).single();
+            if (!profile || profile.role !== 'admin') { window.location.href = 'index.html'; return; }
+
+            document.getElementById('adminName').textContent = profile.full_name || 'Admin';
+
+            const now = new Date();
+            const hour = now.getHours();
+            const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+            document.querySelector('.greeting-title').textContent = greeting + ', ' + (profile.full_name || 'Admin') + ' 👋';
+
+            await Promise.all([loadStats(), loadRecent()]);
+        }
+
+        async function loadStats() {
+            const { data: portfolios } = await db.from('portfolios').select('current_value, invested_amount');
+            const { data: profiles } = await db.from('profiles').select('is_active').eq('role', 'client');
+
+            if (portfolios && portfolios.length) {
+                const totalAUM = portfolios.reduce((s, p) => s + (p.current_value || 0), 0);
+                const totalInvested = portfolios.reduce((s, p) => s + (p.invested_amount || 0), 0);
+                const totalReturns = totalAUM - totalInvested;
+                const growthValues = portfolios
+                    .filter(p => p.invested_amount > 0)
+                    .map(p => ((p.current_value - p.invested_amount) / p.invested_amount) * 100);
+                const avgGrowth = growthValues.length
+                    ? (growthValues.reduce((s, v) => s + v, 0) / growthValues.length).toFixed(1)
+                    : '0.0';
+
+                document.getElementById('totalAUM').textContent = '₹' + totalAUM.toLocaleString('en-IN');
+                document.getElementById('totalInvested').textContent = '₹' + totalInvested.toLocaleString('en-IN');
+                document.getElementById('totalReturns').textContent = (totalReturns >= 0 ? '+₹' : '-₹') + Math.abs(totalReturns).toLocaleString('en-IN');
+                document.getElementById('avgGrowth').textContent = (avgGrowth >= 0 ? '+' : '') + avgGrowth + '%';
+                document.getElementById('avgGrowth').className = 'stat-value ' + (avgGrowth >= 0 ? 'gold' : 'red');
+                document.getElementById('greetingSub').textContent =
+                    `Managing ₹${totalAUM.toLocaleString('en-IN')} across ${profiles?.length || 0} investors`;
+            }
+
+            if (profiles) {
+                const active = profiles.filter(p => p.is_active).length;
+                const suspended = profiles.filter(p => !p.is_active).length;
+                document.getElementById('totalInvestors').textContent = profiles.length;
+                document.getElementById('activeInvestors').textContent = active;
+                document.getElementById('suspendedInvestors').textContent = suspended;
+            }
+        }
+
+        async function loadRecent() {
+            const { data } = await db
+                .from('portfolios')
+                .select('*, profiles(investor_id, full_name, is_active)')
+                .order('last_updated', { ascending: false })
+                .limit(8);
+
+            const list = document.getElementById('recentList');
+
+            if (!data || !data.length) {
+                list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p style="font-size:0.85rem;color:var(--grey);">No investors yet. Add your first investor!</p></div>`;
+                return;
+            }
+
+            list.innerHTML = data.map(p => {
+                const profit = (p.current_value || 0) - (p.invested_amount || 0);
+                const growth = p.invested_amount ? ((profit / p.invested_amount) * 100).toFixed(1) : '0.0';
+                const isProfit = profit >= 0;
+                const name = p.profiles?.full_name || 'Unknown';
+                const initial = name[0].toUpperCase();
+                return `
+          <a href="admin-client.html?id=${p.client_id}" class="investor-item">
+            <div class="inv-avatar">${initial}</div>
+            <div class="inv-info">
+              <div class="inv-name">${name}</div>
+              <div class="inv-id">${p.profiles?.investor_id || '-'}</div>
+            </div>
+            <div class="inv-right">
+              <div class="inv-value">₹${(p.current_value || 0).toLocaleString('en-IN')}</div>
+              <div class="inv-growth ${isProfit ? 'positive' : 'negative'}">
+                ${isProfit ? '▲' : '▼'} ${Math.abs(growth)}%
+              </div>
+            </div>
+          </a>
+        `;
+            }).join('');
+        }
+
+        async function logout() {
+            await db.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        init();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report History — MARCSFUNDHANG</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0D0F14;
+            --card: #151820;
+            --card2: #1a1f2e;
+            --border: #1E2530;
+            --gold: #F0B429;
+            --gold-dim: #d4a017;
+            --green: #00C896;
+            --red: #FF4D4D;
+            --white: #FFFFFF;
+            --grey: #8B95A1;
+            --grey-dim: #4a5568;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 5rem;
+        }
+
+        .navbar {
+            background: rgba(21, 24, 32, 0.97);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 1.25rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-back {
+            width: 34px;
+            height: 34px;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: var(--grey);
+            text-decoration: none;
+        }
+
+        .nav-back:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .nav-back svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .nav-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .nav-logo {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+
+        .container {
+            padding: 1.25rem;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* TOOLBAR */
+        .toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+            animation: fadeUp 0.4s ease 0.05s both;
+        }
+
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--grey-dim);
+        }
+
+        .search-icon svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.7rem 0.85rem 0.7rem 2.5rem;
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            color: var(--white);
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--gold);
+        }
+
+        .search-input::placeholder {
+            color: var(--grey-dim);
+        }
+
+        .date-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+        }
+
+        .date-input {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            color: var(--white);
+            font-size: 0.82rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .date-input:focus {
+            border-color: var(--gold);
+        }
+
+        /* FILTER CHIPS */
+        .chips-row {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.2rem;
+            scrollbar-width: none;
+        }
+
+        .chips-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chip {
+            padding: 0.35rem 0.85rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            background: transparent;
+            color: var(--grey);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .chip.active {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(240, 180, 41, 0.08);
+        }
+
+        /* SUMMARY */
+        .summary-bar {
+            display: flex;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+            animation: fadeUp 0.4s ease 0.1s both;
+        }
+
+        .summary-pill {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 99px;
+            padding: 0.4rem 0.85rem;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .summary-pill span {
+            font-weight: 700;
+            margin-left: 0.3rem;
+            color: var(--gold);
+        }
+
+        /* LOG LIST */
+        .log-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            animation: fadeUp 0.4s ease 0.15s both;
+        }
+
+        .log-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0.9rem 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.9rem;
+        }
+
+        .log-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .log-icon svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .log-icon.update {
+            background: rgba(123, 143, 255, 0.12);
+            color: #7B8FFF;
+        }
+
+        .log-icon.transaction {
+            background: rgba(0, 200, 150, 0.12);
+            color: var(--green);
+        }
+
+        .log-icon.suspend {
+            background: rgba(255, 77, 77, 0.12);
+            color: var(--red);
+        }
+
+        .log-icon.delete {
+            background: rgba(255, 77, 77, 0.12);
+            color: var(--red);
+        }
+
+        .log-icon.other {
+            background: rgba(139, 149, 161, 0.1);
+            color: var(--grey);
+        }
+
+        .log-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .log-action {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 0.3rem;
+        }
+
+        .log-action.update {
+            background: rgba(123, 143, 255, 0.1);
+            color: #7B8FFF;
+        }
+
+        .log-action.transaction {
+            background: rgba(0, 200, 150, 0.1);
+            color: var(--green);
+        }
+
+        .log-action.suspend {
+            background: rgba(255, 77, 77, 0.1);
+            color: var(--red);
+        }
+
+        .log-action.delete {
+            background: rgba(255, 77, 77, 0.1);
+            color: var(--red);
+        }
+
+        .log-action.other {
+            background: rgba(139, 149, 161, 0.1);
+            color: var(--grey);
+        }
+
+        .log-investor {
+            font-size: 0.83rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .log-investor span {
+            color: var(--gold);
+            font-size: 0.72rem;
+            margin-left: 0.3rem;
+        }
+
+        .log-values {
+            font-size: 0.72rem;
+            color: var(--grey);
+            line-height: 1.5;
+        }
+
+        .log-values b {
+            color: var(--white);
+            font-weight: 500;
+        }
+
+        .log-time {
+            font-size: 0.7rem;
+            color: var(--grey-dim);
+            white-space: nowrap;
+            flex-shrink: 0;
+            text-align: right;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--grey);
+        }
+
+        .empty-state svg {
+            width: 36px;
+            height: 36px;
+            margin-bottom: 0.75rem;
+            opacity: 0.4;
+        }
+
+        .empty-state p {
+            font-size: 0.82rem;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(21, 24, 32, 0.97);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 0.6rem 0;
+            padding-bottom: calc(0.6rem + env(safe-area-inset-bottom));
+            display: flex;
+            z-index: 100;
+        }
+
+        .bn-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            cursor: pointer;
+            padding: 0.4rem 0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .bn-icon {
+            width: 22px;
+            height: 22px;
+            transition: transform 0.2s;
+        }
+
+        .bn-label {
+            font-size: 0.62rem;
+            color: var(--grey);
+            font-weight: 500;
+        }
+
+        .bn-item.active .bn-label {
+            color: var(--gold);
+        }
+
+        .bn-item:active .bn-icon {
+            transform: scale(0.9);
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+
+            .container {
+                max-width: 900px;
+                padding: 2rem;
+            }
+
+            .toolbar {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .search-wrap {
+                flex: 1;
+            }
+
+            .date-row {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div class="nav-left">
+            <a href="admin-dashboard.html" class="nav-back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 5l-7 7 7 7" />
+                </svg>
+            </a>
+            <div class="nav-title">Report History</div>
+        </div>
+        <div class="nav-logo">MARCSFUNDHANG</div>
+    </div>
+
+    <div class="container">
+
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+            <div class="search-wrap">
+                <span class="search-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="M21 21l-4.35-4.35" />
+                    </svg>
+                </span>
+                <input class="search-input" type="text" id="searchInput" placeholder="Search investor or action..."
+                    oninput="filterLogs()" />
+            </div>
+            <div class="date-row">
+                <input class="date-input" type="date" id="dateFrom" onchange="filterLogs()" placeholder="From" />
+                <input class="date-input" type="date" id="dateTo" onchange="filterLogs()" placeholder="To" />
+            </div>
+            <div class="chips-row">
+                <button class="chip active" data-action="all" onclick="setActionFilter('all', this)">All</button>
+                <button class="chip" data-action="UPDATE_VALUE"
+                    onclick="setActionFilter('UPDATE_VALUE', this)">Updates</button>
+                <button class="chip" data-action="ADD_TRANSACTION"
+                    onclick="setActionFilter('ADD_TRANSACTION', this)">Transactions</button>
+                <button class="chip" data-action="SUSPEND" onclick="setActionFilter('SUSPEND', this)">Suspends</button>
+                <button class="chip" data-action="DELETE" onclick="setActionFilter('DELETE', this)">Deletes</button>
+            </div>
+        </div>
+
+        <!-- SUMMARY -->
+        <div class="summary-bar">
+            <div class="summary-pill">Total <span id="totalCount">0</span></div>
+            <div class="summary-pill">Showing <span id="showingCount">0</span></div>
+        </div>
+
+        <!-- LOG LIST -->
+        <div class="log-list" id="logList">
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                </svg>
+                <p>Loading audit log...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bottom-nav">
+        <a class="bn-item" href="admin-dashboard.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+            </svg>
+            <span class="bn-label">Overview</span>
+        </a>
+        <a class="bn-item" href="admin.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+            </svg>
+            <span class="bn-label">Investors</span>
+        </a>
+        <a class="bn-item" href="admin-add-client.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="2">
+                <path d="M12 5v14M5 12h14" />
+            </svg>
+            <span class="bn-label">Add</span>
+        </a>
+        <a class="bn-item" href="admin-announcements.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="2">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
+            </svg>
+            <span class="bn-label">Announce</span>
+        </a>
+        <a class="bn-item active" href="admin-reports.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <span class="bn-label" style="color:var(--gold)">Reports</span>
+        </a>
+    </div>
+
+    <script>
+        let allLogs = [];
+        let actionFilter = 'all';
+
+        const actionConfig = {
+            'UPDATE_VALUE': { cls: 'update', label: 'VALUE UPDATE', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>` },
+            'ADD_TRANSACTION': { cls: 'transaction', label: 'TRANSACTION', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>` },
+            'SUSPEND': { cls: 'suspend', label: 'SUSPEND', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>` },
+            'DELETE': { cls: 'delete', label: 'DELETE', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>` },
+        };
+
+        async function checkAuth() {
+            const { data: { session } } = await db.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+            const { data: profile } = await db.from('profiles').select('role').eq('id', session.user.id).single();
+            if (!profile || profile.role !== 'admin') { window.location.href = 'index.html'; return; }
+            loadLogs();
+        }
+
+        async function loadLogs() {
+            const { data } = await db
+                .from('audit_log')
+                .select('*, profiles!audit_log_client_id_fkey(full_name, investor_id)')
+                .order('created_at', { ascending: false })
+                .limit(200);
+            allLogs = data || [];
+            document.getElementById('totalCount').textContent = allLogs.length;
+            renderLogs(allLogs);
+        }
+
+        function setActionFilter(action, el) {
+            actionFilter = action;
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            filterLogs();
+        }
+
+        function filterLogs() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+
+            const filtered = allLogs.filter(log => {
+                const name = (log.profiles?.full_name || '').toLowerCase();
+                const id = (log.profiles?.investor_id || '').toLowerCase();
+                const action = (log.action || '').toLowerCase();
+                const matchSearch = name.includes(search) || id.includes(search) || action.includes(search);
+                const logDate = new Date(log.created_at).toISOString().split('T')[0];
+                const matchFrom = !dateFrom || logDate >= dateFrom;
+                const matchTo = !dateTo || logDate <= dateTo;
+                const matchAction = actionFilter === 'all' || log.action === actionFilter;
+                return matchSearch && matchFrom && matchTo && matchAction;
+            });
+
+            renderLogs(filtered);
+        }
+
+        function renderLogs(logs) {
+            const list = document.getElementById('logList');
+            document.getElementById('showingCount').textContent = logs.length;
+
+            if (!logs.length) {
+                list.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <p>No logs found.</p>
+          </div>`;
+                return;
+            }
+
+            list.innerHTML = logs.map(log => {
+                const cfg = actionConfig[log.action] || { cls: 'other', label: log.action || 'ACTION', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>` };
+                const timeAgo = formatTime(log.created_at);
+                let valuesHtml = '';
+                if (log.old_value && log.new_value) {
+                    valuesHtml = `<div class="log-values">From <b>${log.old_value}</b> → <b>${log.new_value}</b></div>`;
+                } else if (log.new_value) {
+                    valuesHtml = `<div class="log-values"><b>${log.new_value}</b></div>`;
+                }
+                return `
+          <div class="log-item">
+            <div class="log-icon ${cfg.cls}">${cfg.icon}</div>
+            <div class="log-info">
+              <span class="log-action ${cfg.cls}">${cfg.label}</span>
+              <div class="log-investor">
+                ${log.profiles?.full_name || 'Unknown'}
+                <span>${log.profiles?.investor_id || '-'}</span>
+              </div>
+              ${valuesHtml}
+            </div>
+            <div class="log-time">${timeAgo}</div>
+          </div>`;
+            }).join('');
+        }
+
+        function formatTime(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return 'just now';
+            if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+            if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        }
+
+        checkAuth();
+    </script>
+
+</body>
+
+</html>

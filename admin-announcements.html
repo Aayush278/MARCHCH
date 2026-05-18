@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Announcements — MARCSFUNDHANG</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0D0F14;
+            --card: #151820;
+            --card2: #1a1f2e;
+            --border: #1E2530;
+            --gold: #F0B429;
+            --gold-dim: #d4a017;
+            --green: #00C896;
+            --red: #FF4D4D;
+            --white: #FFFFFF;
+            --grey: #8B95A1;
+            --grey-dim: #4a5568;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 5rem;
+        }
+
+        .navbar {
+            background: rgba(21, 24, 32, 0.97);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 1.25rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-back {
+            width: 34px;
+            height: 34px;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: var(--grey);
+            text-decoration: none;
+        }
+
+        .nav-back:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .nav-back svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .nav-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .nav-logo {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+
+        .container {
+            padding: 1.25rem;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* FORM CARD */
+        .form-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            animation: fadeUp 0.4s ease 0.05s both;
+        }
+
+        .form-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-title svg {
+            width: 16px;
+            height: 16px;
+            color: var(--gold);
+        }
+
+        .field {
+            margin-bottom: 0.9rem;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.72rem;
+            color: var(--grey);
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+        }
+
+        .field input,
+        .field textarea {
+            width: 100%;
+            padding: 0.75rem 0.9rem;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            color: var(--white);
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .field input:focus,
+        .field textarea:focus {
+            border-color: var(--gold);
+        }
+
+        .field input::placeholder,
+        .field textarea::placeholder {
+            color: var(--grey-dim);
+        }
+
+        .field textarea {
+            resize: none;
+            min-height: 90px;
+        }
+
+        .btn-post {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--gold);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 16px rgba(240, 180, 41, 0.2);
+        }
+
+        .btn-post svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-post:hover {
+            background: var(--gold-dim);
+            transform: translateY(-1px);
+        }
+
+        .btn-post:active {
+            transform: translateY(0);
+        }
+
+        /* MESSAGES */
+        .msg {
+            border-radius: 10px;
+            padding: 0.7rem 0.9rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.75rem;
+            display: none;
+        }
+
+        .msg.show {
+            display: block;
+            animation: fadeUp 0.3s ease;
+        }
+
+        .msg-success {
+            background: rgba(0, 200, 150, 0.08);
+            border: 1px solid rgba(0, 200, 150, 0.25);
+            color: var(--green);
+        }
+
+        .msg-error {
+            background: rgba(255, 77, 77, 0.08);
+            border: 1px solid rgba(255, 77, 77, 0.25);
+            color: var(--red);
+        }
+
+        /* ANNOUNCEMENTS LIST */
+        .list-section {
+            animation: fadeUp 0.4s ease 0.1s both;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .list-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .list-count {
+            font-size: 0.72rem;
+            color: var(--grey);
+        }
+
+        .ann-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .ann-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.1rem;
+            transition: border-color 0.2s;
+        }
+
+        .ann-item.visible {
+            border-left: 3px solid var(--green);
+        }
+
+        .ann-item.hidden-ann {
+            border-left: 3px solid var(--grey-dim);
+            opacity: 0.7;
+        }
+
+        .ann-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ann-title-text {
+            font-size: 0.88rem;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .ann-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 99px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .ann-badge.visible {
+            background: rgba(0, 200, 150, 0.1);
+            color: var(--green);
+            border: 1px solid rgba(0, 200, 150, 0.2);
+        }
+
+        .ann-badge.hidden-ann {
+            background: rgba(139, 149, 161, 0.1);
+            color: var(--grey);
+            border: 1px solid var(--border);
+        }
+
+        .ann-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .ann-body-text {
+            font-size: 0.8rem;
+            color: var(--grey);
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+
+        .ann-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ann-date {
+            font-size: 0.7rem;
+            color: var(--grey-dim);
+        }
+
+        .ann-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--card2);
+            color: var(--grey);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .btn-sm svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .btn-sm:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .btn-sm.delete:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: var(--grey);
+        }
+
+        .empty-state svg {
+            width: 36px;
+            height: 36px;
+            margin-bottom: 0.75rem;
+            opacity: 0.4;
+        }
+
+        .empty-state p {
+            font-size: 0.82rem;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(21, 24, 32, 0.97);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 0.6rem 0;
+            padding-bottom: calc(0.6rem + env(safe-area-inset-bottom));
+            display: flex;
+            z-index: 100;
+        }
+
+        .bn-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            cursor: pointer;
+            padding: 0.4rem 0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .bn-icon {
+            width: 22px;
+            height: 22px;
+            transition: transform 0.2s;
+        }
+
+        .bn-label {
+            font-size: 0.62rem;
+            color: var(--grey);
+            font-weight: 500;
+        }
+
+        .bn-item.active .bn-label {
+            color: var(--gold);
+        }
+
+        .bn-item:active .bn-icon {
+            transform: scale(0.9);
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+
+            .container {
+                max-width: 680px;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div class="nav-left">
+            <a href="admin-dashboard.html" class="nav-back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 5l-7 7 7 7" />
+                </svg>
+            </a>
+            <div class="nav-title">Announcements</div>
+        </div>
+        <div class="nav-logo">MARCSFUNDHANG</div>
+    </div>
+
+    <div class="container">
+
+        <!-- POST FORM -->
+        <div class="form-card">
+            <div class="form-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
+                </svg>
+                Post New Announcement
+            </div>
+            <div class="msg msg-success" id="successMsg"></div>
+            <div class="msg msg-error" id="errorMsg"></div>
+            <div class="field">
+                <label>Title</label>
+                <input type="text" id="annTitle" placeholder="e.g. April 2026 returns updated" />
+            </div>
+            <div class="field">
+                <label>Message</label>
+                <textarea id="annBody" placeholder="Write your announcement here..."></textarea>
+            </div>
+            <button class="btn-post" onclick="postAnnouncement()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+                Post to All Investors
+            </button>
+        </div>
+
+        <!-- LIST -->
+        <div class="list-section">
+            <div class="list-header">
+                <div class="list-title">Past Announcements</div>
+                <div class="list-count" id="listCount"></div>
+            </div>
+            <div class="ann-list" id="annList">
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
+                    </svg>
+                    <p>Loading announcements...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bottom-nav">
+        <a class="bn-item" href="admin-dashboard.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+            </svg>
+            <span class="bn-label">Overview</span>
+        </a>
+        <a class="bn-item" href="admin.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+            </svg>
+            <span class="bn-label">Investors</span>
+        </a>
+        <a class="bn-item" href="admin-add-client.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="2">
+                <path d="M12 5v14M5 12h14" />
+            </svg>
+            <span class="bn-label">Add</span>
+        </a>
+        <a class="bn-item active" href="admin-announcements.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
+            </svg>
+            <span class="bn-label" style="color:var(--gold)">Announce</span>
+        </a>
+        <a class="bn-item" href="admin-reports.html">
+            <svg class="bn-icon" viewBox="0 0 24 24" fill="none" stroke="var(--grey)" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <span class="bn-label">Reports</span>
+        </a>
+    </div>
+
+    <script>
+        async function checkAuth() {
+            const { data: { session } } = await db.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+            const { data: profile } = await db.from('profiles').select('role').eq('id', session.user.id).single();
+            if (!profile || profile.role !== 'admin') { window.location.href = 'index.html'; return; }
+            loadAnnouncements();
+        }
+
+        async function postAnnouncement() {
+            const title = document.getElementById('annTitle').value.trim();
+            const body = document.getElementById('annBody').value.trim();
+            if (!title || !body) { showMsg('errorMsg', 'Please fill in both title and message.'); return; }
+            const { data: { session } } = await db.auth.getSession();
+            const { error } = await db.from('announcements').insert({
+                title, body, is_active: true, posted_by: session.user.id
+            });
+            if (error) { showMsg('errorMsg', error.message); return; }
+            showMsg('successMsg', 'Announcement posted! All investors will see it now.');
+            document.getElementById('annTitle').value = '';
+            document.getElementById('annBody').value = '';
+            loadAnnouncements();
+        }
+
+        async function loadAnnouncements() {
+            const { data } = await db.from('announcements').select('*').order('created_at', { ascending: false });
+            const list = document.getElementById('annList');
+            document.getElementById('listCount').textContent = (data?.length || 0) + ' total';
+
+            if (!data || !data.length) {
+                list.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg><p>No announcements yet.</p></div>`;
+                return;
+            }
+
+            list.innerHTML = data.map(a => `
+        <div class="ann-item ${a.is_active ? 'visible' : 'hidden-ann'}">
+          <div class="ann-top">
+            <div class="ann-title-text">${a.title}</div>
+            <span class="ann-badge ${a.is_active ? 'visible' : 'hidden-ann'}">
+              <span class="ann-dot"></span>
+              ${a.is_active ? 'Visible' : 'Hidden'}
+            </span>
+          </div>
+          <div class="ann-body-text">${a.body}</div>
+          <div class="ann-footer">
+            <div class="ann-date">${new Date(a.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+            <div class="ann-actions">
+              <button class="btn-sm" onclick="toggleAnn('${a.id}', ${a.is_active})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                ${a.is_active ? 'Hide' : 'Show'}
+              </button>
+              <button class="btn-sm delete" onclick="deleteAnn('${a.id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+        }
+
+        async function toggleAnn(id, current) {
+            await db.from('announcements').update({ is_active: !current }).eq('id', id);
+            loadAnnouncements();
+        }
+
+        async function deleteAnn(id) {
+            if (!confirm('Delete this announcement?')) return;
+            await db.from('announcements').delete().eq('id', id);
+            loadAnnouncements();
+        }
+
+        function showMsg(id, msg) {
+            const el = document.getElementById(id);
+            el.textContent = msg; el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 4000);
+        }
+
+        checkAuth();
+    </script>
+
+</body>
+
+</html>

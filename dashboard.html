@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Portfolio — MARCSFUNDHANG</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="supabase.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0D0F14;
+            --card: #151820;
+            --card2: #1a1f2e;
+            --border: #1E2530;
+            --gold: #F0B429;
+            --gold-dim: #d4a017;
+            --green: #00C896;
+            --red: #FF4D4D;
+            --white: #FFFFFF;
+            --grey: #8B95A1;
+            --grey-dim: #4a5568;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--white);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background: rgba(21, 24, 32, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 1.25rem;
+            height: 64px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-logo {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+
+        .nav-id {
+            font-size: 0.7rem;
+            color: var(--grey);
+            margin-top: 1px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-greeting {
+            font-size: 0.82rem;
+            color: var(--grey);
+            display: none;
+        }
+
+        .btn-logout {
+            padding: 0.45rem 0.9rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--grey);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        /* ── ANNOUNCEMENT BANNER ── */
+        .announcement {
+            background: linear-gradient(135deg, rgba(37, 99, 168, 0.15), rgba(37, 99, 168, 0.05));
+            border-bottom: 1px solid rgba(37, 99, 168, 0.3);
+            padding: 0.75rem 1.25rem;
+            display: none;
+            align-items: flex-start;
+            gap: 0.75rem;
+            animation: slideDown 0.4s ease;
+        }
+
+        .announcement.show {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ann-icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .ann-content {
+            flex: 1;
+        }
+
+        .ann-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #7B8FFF;
+            margin-bottom: 0.15rem;
+        }
+
+        .ann-body {
+            font-size: 0.78rem;
+            color: var(--grey);
+            line-height: 1.5;
+        }
+
+        .ann-close {
+            color: var(--grey-dim);
+            cursor: pointer;
+            font-size: 1rem;
+            flex-shrink: 0;
+            background: none;
+            border: none;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .ann-close:hover {
+            color: var(--white);
+        }
+
+        /* ── CONTAINER ── */
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 1.25rem;
+        }
+
+        /* ── WELCOME SECTION ── */
+        .welcome-section {
+            margin-bottom: 1.5rem;
+            animation: fadeUp 0.5s ease 0.1s both;
+        }
+
+        .welcome-greeting {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .welcome-greeting span {
+            color: var(--gold);
+        }
+
+        .welcome-sub {
+            font-size: 0.82rem;
+            color: var(--grey);
+        }
+
+        .welcome-date {
+            font-size: 0.75rem;
+            color: var(--grey-dim);
+            margin-top: 0.2rem;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── MAIN PORTFOLIO CARD ── */
+        .portfolio-hero {
+            background: linear-gradient(135deg, var(--card2) 0%, var(--card) 100%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.5s ease 0.15s both;
+        }
+
+        .portfolio-hero::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 150px;
+            height: 150px;
+            background: rgba(240, 180, 41, 0.05);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .portfolio-hero-label {
+            font-size: 0.72rem;
+            color: var(--grey);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 0.4rem;
+        }
+
+        .portfolio-hero-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .portfolio-hero-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .portfolio-hero-change.positive {
+            background: rgba(0, 200, 150, 0.12);
+            color: var(--green);
+        }
+
+        .portfolio-hero-change.negative {
+            background: rgba(255, 77, 77, 0.12);
+            color: var(--red);
+        }
+
+        .portfolio-hero-meta {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .portfolio-hero-meta-item {}
+
+        .portfolio-hero-meta-label {
+            font-size: 0.7rem;
+            color: var(--grey);
+            margin-bottom: 0.2rem;
+        }
+
+        .portfolio-hero-meta-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* ── STATS GRID ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            animation: fadeUp 0.5s ease 0.2s both;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.1rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .stat-card:active {
+            transform: scale(0.98);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--grey);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .stat-value.gold {
+            color: var(--gold);
+        }
+
+        .stat-value.green {
+            color: var(--green);
+        }
+
+        .stat-value.red {
+            color: var(--red);
+        }
+
+        .stat-value.white {
+            color: var(--white);
+        }
+
+        .stat-sub {
+            font-size: 0.68rem;
+            color: var(--grey-dim);
+            margin-top: 0.3rem;
+        }
+
+        /* ── CHART ── */
+        .chart-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            animation: fadeUp 0.5s ease 0.25s both;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .chart-badge {
+            font-size: 0.72rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 99px;
+            background: rgba(0, 200, 150, 0.1);
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .chart-wrap {
+            position: relative;
+            height: 180px;
+        }
+
+        /* ── SECTION TITLE ── */
+        .section-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ── TRANSACTION LIST ── */
+        .tx-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            animation: fadeUp 0.5s ease 0.3s both;
+        }
+
+        .tx-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0.9rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            transition: transform 0.15s, background 0.15s;
+        }
+
+        .tx-item:active {
+            transform: scale(0.99);
+            background: var(--card2);
+        }
+
+        .tx-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .tx-icon.deposit {
+            background: rgba(0, 200, 150, 0.12);
+        }
+
+        .tx-icon.withdrawal {
+            background: rgba(255, 77, 77, 0.12);
+        }
+
+        .tx-icon.return {
+            background: rgba(123, 143, 255, 0.12);
+        }
+
+        .tx-icon.bonus {
+            background: rgba(240, 180, 41, 0.12);
+        }
+
+        .tx-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tx-type {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .tx-date {
+            font-size: 0.72rem;
+            color: var(--grey);
+            margin-top: 0.1rem;
+        }
+
+        .tx-remark {
+            font-size: 0.72rem;
+            color: var(--grey-dim);
+            margin-top: 0.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tx-amount {
+            font-size: 0.9rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .tx-amount.positive {
+            color: var(--green);
+        }
+
+        .tx-amount.negative {
+            color: var(--red);
+        }
+
+        .tx-amount.neutral {
+            color: var(--grey);
+        }
+
+        /* ── PROFILE CARD ── */
+        .profile-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            animation: fadeUp 0.5s ease 0.35s both;
+        }
+
+        .profile-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .profile-field {}
+
+        .profile-label {
+            font-size: 0.68rem;
+            color: var(--grey);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-value {
+            font-size: 0.85rem;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .profile-value.gold {
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        /* ── BOTTOM NAV ── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(21, 24, 32, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.6rem 0;
+            padding-bottom: max(0.6rem, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            cursor: pointer;
+            padding: 0.4rem 1rem;
+            border-radius: 12px;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: none;
+            background: none;
+            color: var(--grey);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .nav-item.active {
+            color: var(--gold);
+        }
+
+        .nav-item:active {
+            transform: scale(0.92);
+        }
+
+        .nav-item-icon {
+            font-size: 1.3rem;
+            line-height: 1;
+        }
+
+        .nav-item-label {
+            font-size: 0.62rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--grey);
+            font-size: 0.85rem;
+        }
+
+        .empty-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ── SKELETON LOADING ── */
+        .skeleton {
+            background: linear-gradient(90deg, var(--card) 25%, var(--card2) 50%, var(--card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+            height: 1rem;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* ── DESKTOP ── */
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+
+            .navbar {
+                padding: 0 2rem;
+            }
+
+            .nav-greeting {
+                display: block;
+            }
+
+            .container {
+                padding: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .chart-wrap {
+                height: 220px;
+            }
+
+            .welcome-greeting {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="nav-left">
+            <div class="nav-logo">MARCSFUNDHANG</div>
+            <div class="nav-id" id="navId">Loading...</div>
+        </div>
+        <div class="nav-right">
+            <span class="nav-greeting" id="navGreeting"></span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- ANNOUNCEMENT BANNER -->
+    <div class="announcement" id="announcementBanner">
+        <span class="ann-icon">📢</span>
+        <div class="ann-content">
+            <div class="ann-title" id="annTitle"></div>
+            <div class="ann-body" id="annBody"></div>
+        </div>
+        <button class="ann-close" onclick="this.parentElement.classList.remove('show')">✕</button>
+    </div>
+
+    <div class="container">
+
+        <!-- WELCOME -->
+        <div class="welcome-section">
+            <div class="welcome-greeting">Hello, <span id="welcomeName">Investor</span> 👋</div>
+            <div class="welcome-sub">Here's your portfolio performance</div>
+            <div class="welcome-date" id="welcomeDate"></div>
+        </div>
+
+        <!-- MAIN PORTFOLIO HERO CARD -->
+        <div class="portfolio-hero">
+            <div class="portfolio-hero-label">Current Portfolio Value</div>
+            <div class="portfolio-hero-value" id="heroValue">₹0</div>
+            <div class="portfolio-hero-change positive" id="heroChange">+₹0 (+0.00%)</div>
+            <div class="portfolio-hero-meta">
+                <div class="portfolio-hero-meta-item">
+                    <div class="portfolio-hero-meta-label">Total Invested</div>
+                    <div class="portfolio-hero-meta-value gold" id="heroInvested">₹0</div>
+                </div>
+                <div class="portfolio-hero-meta-item">
+                    <div class="portfolio-hero-meta-label">Monthly Return</div>
+                    <div class="portfolio-hero-meta-value" id="heroMonthly">₹0</div>
+                </div>
+                <div class="portfolio-hero-meta-item">
+                    <div class="portfolio-hero-meta-label">Since</div>
+                    <div class="portfolio-hero-meta-value" id="heroSince">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATS GRID -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Profit / Loss</div>
+                <div class="stat-value green" id="statProfit">₹0</div>
+                <div class="stat-sub" id="statProfitSub">0.00%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Growth</div>
+                <div class="stat-value green" id="statGrowth">0.00%</div>
+                <div class="stat-sub" id="statUpdated">Last updated -</div>
+            </div>
+        </div>
+
+        <!-- CHART -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">📈 Portfolio Growth</div>
+                <div class="chart-badge" id="chartBadge">Loading...</div>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+
+        <!-- TRANSACTIONS -->
+        <div class="section-title">🧾 Recent Transactions</div>
+        <div class="tx-list" id="txList">
+            <div class="empty-state">
+                <div class="skeleton" style="height:60px;border-radius:14px;margin-bottom:0.5rem;"></div>
+                <div class="skeleton" style="height:60px;border-radius:14px;margin-bottom:0.5rem;"></div>
+                <div class="skeleton" style="height:60px;border-radius:14px;"></div>
+            </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div class="section-title">👤 My Profile</div>
+        <div class="profile-card">
+            <div class="profile-row">
+                <div class="profile-field">
+                    <div class="profile-label">Investor ID</div>
+                    <div class="profile-value gold" id="profileId">-</div>
+                </div>
+                <div class="profile-field">
+                    <div class="profile-label">Full Name</div>
+                    <div class="profile-value" id="profileName">-</div>
+                </div>
+                <div class="profile-field">
+                    <div class="profile-label">Email</div>
+                    <div class="profile-value" id="profileEmail">-</div>
+                </div>
+                <div class="profile-field">
+                    <div class="profile-label">Mobile</div>
+                    <div class="profile-value" id="profilePhone">-</div>
+                </div>
+                <div class="profile-field">
+                    <div class="profile-label">Member Since</div>
+                    <div class="profile-value" id="profileSince">-</div>
+                </div>
+                <div class="profile-field">
+                    <div class="profile-label">Status</div>
+                    <div class="profile-value" id="profileStatus">-</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="scrollToTop()">
+            <span class="nav-item-icon">📊</span>
+            <span class="nav-item-label">Portfolio</span>
+        </button>
+        <button class="nav-item" onclick="scrollToChart()">
+            <span class="nav-item-icon">📈</span>
+            <span class="nav-item-label">Growth</span>
+        </button>
+        <button class="nav-item" onclick="scrollToTx()">
+            <span class="nav-item-icon">🧾</span>
+            <span class="nav-item-label">History</span>
+        </button>
+        <button class="nav-item" onclick="scrollToProfile()">
+            <span class="nav-item-icon">👤</span>
+            <span class="nav-item-label">Profile</span>
+        </button>
+    </nav>
+
+    <script>
+        let chartInstance = null;
+
+        // ── DATE ──
+        document.getElementById('welcomeDate').textContent = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        // ── AUTH CHECK ──
+        async function checkAuth() {
+            const { data: { session } } = await db.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+
+            const { data: profile } = await db
+                .from('profiles').select('*').eq('id', session.user.id).single();
+
+            if (!profile) { window.location.href = 'index.html'; return; }
+            if (profile.role === 'admin') { window.location.href = 'admin-dashboard.html'; return; }
+            if (!profile.is_active) { await db.auth.signOut(); window.location.href = 'index.html'; return; }
+
+            const firstName = (profile.full_name || 'Investor').split(' ')[0];
+            document.getElementById('welcomeName').textContent = firstName;
+            document.getElementById('navGreeting').textContent = `Hello, ${firstName}`;
+            document.getElementById('navId').textContent = profile.investor_id || '';
+            document.getElementById('profileId').textContent = profile.investor_id || '-';
+            document.getElementById('profileName').textContent = profile.full_name || '-';
+            document.getElementById('profileEmail').textContent = profile.email || '-';
+            document.getElementById('profilePhone').textContent = profile.phone || '-';
+            document.getElementById('profileSince').textContent = new Date(profile.created_at).toLocaleDateString('en-IN');
+            document.getElementById('profileStatus').innerHTML = profile.is_active
+                ? '<span style="color:var(--green);">● Active</span>'
+                : '<span style="color:var(--red);">● Suspended</span>';
+
+            loadPortfolio(session.user.id);
+            loadTransactions(session.user.id);
+            loadAnnouncement();
+        }
+
+        // ── PORTFOLIO ──
+        async function loadPortfolio(userId) {
+            const { data: port } = await db.from('portfolios').select('*').eq('client_id', userId).single();
+            if (!port) return;
+
+            const profit = (port.current_value || 0) - (port.invested_amount || 0);
+            const growth = port.invested_amount ? ((profit / port.invested_amount) * 100).toFixed(2) : '0.00';
+            const isProfit = profit >= 0;
+
+            document.getElementById('heroValue').textContent = '₹' + (port.current_value || 0).toLocaleString('en-IN');
+            document.getElementById('heroInvested').textContent = '₹' + (port.invested_amount || 0).toLocaleString('en-IN');
+            document.getElementById('heroMonthly').textContent = '₹' + (port.monthly_return || 0).toLocaleString('en-IN');
+            document.getElementById('heroSince').textContent = port.investment_date
+                ? new Date(port.investment_date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '-';
+
+            const heroChange = document.getElementById('heroChange');
+            heroChange.textContent = `${isProfit ? '+' : '-'}₹${Math.abs(profit).toLocaleString('en-IN')} (${isProfit ? '+' : ''}${growth}%)`;
+            heroChange.className = `portfolio-hero-change ${isProfit ? 'positive' : 'negative'}`;
+
+            document.getElementById('statProfit').textContent = `${isProfit ? '+₹' : '-₹'}${Math.abs(profit).toLocaleString('en-IN')}`;
+            document.getElementById('statProfit').className = `stat-value ${isProfit ? 'green' : 'red'}`;
+            document.getElementById('statProfitSub').textContent = `${isProfit ? '+' : ''}${growth}%`;
+
+            document.getElementById('statGrowth').textContent = `${isProfit ? '+' : ''}${growth}%`;
+            document.getElementById('statGrowth').className = `stat-value ${isProfit ? 'green' : 'red'}`;
+            document.getElementById('statUpdated').textContent = port.last_updated
+                ? 'Updated ' + new Date(port.last_updated).toLocaleDateString('en-IN') : '-';
+        }
+
+        // ── TRANSACTIONS ──
+        async function loadTransactions(userId) {
+            const { data } = await db.from('transactions').select('*').eq('client_id', userId).order('date', { ascending: false });
+
+            const txList = document.getElementById('txList');
+
+            if (!data || !data.length) {
+                txList.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>No transactions yet.</div>';
+                document.getElementById('chartBadge').textContent = 'No data';
+                return;
+            }
+
+            const icons = { 'Deposit': '💰', 'Withdrawal': '💸', 'Return Update': '📈', 'Bonus': '🎁' };
+            const iconClass = { 'Deposit': 'deposit', 'Withdrawal': 'withdrawal', 'Return Update': 'return', 'Bonus': 'bonus' };
+            const amountClass = { 'Deposit': 'positive', 'Withdrawal': 'negative', 'Return Update': 'neutral', 'Bonus': 'positive' };
+
+            txList.innerHTML = data.map(t => `
+        <div class="tx-item">
+          <div class="tx-icon ${iconClass[t.type] || 'return'}">${icons[t.type] || '📋'}</div>
+          <div class="tx-info">
+            <div class="tx-type">${t.type}</div>
+            <div class="tx-date">${new Date(t.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+            ${t.remark ? `<div class="tx-remark">${t.remark}</div>` : ''}
+          </div>
+          <div class="tx-amount ${amountClass[t.type] || 'neutral'}">
+            ${t.type === 'Withdrawal' ? '-' : '+'}₹${(t.amount || 0).toLocaleString('en-IN')}
+          </div>
+        </div>
+      `).join('');
+
+            buildChart(data);
+        }
+
+        // ── CHART ──
+        function buildChart(transactions) {
+            const sorted = [...transactions].reverse();
+            const labels = sorted.map(t => new Date(t.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }));
+            const values = sorted.map(t => t.current_value_snapshot || 0);
+
+            document.getElementById('chartBadge').textContent = `${sorted.length} entries`;
+
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: values,
+                        borderColor: '#00C896',
+                        backgroundColor: (ctx) => {
+                            const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 200);
+                            gradient.addColorStop(0, 'rgba(0,200,150,0.15)');
+                            gradient.addColorStop(1, 'rgba(0,200,150,0)');
+                            return gradient;
+                        },
+                        borderWidth: 2,
+                        pointBackgroundColor: '#00C896',
+                        pointBorderColor: '#0D0F14',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1a1f2e',
+                            borderColor: '#1E2530',
+                            borderWidth: 1,
+                            titleColor: '#8B95A1',
+                            bodyColor: '#FFFFFF',
+                            callbacks: {
+                                label: (ctx) => '  ₹' + ctx.raw.toLocaleString('en-IN')
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#8B95A1', font: { size: 10, family: 'Inter' }, maxTicksLimit: 6 },
+                            grid: { color: 'rgba(30,37,48,0.8)' }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#8B95A1',
+                                font: { size: 10, family: 'Inter' },
+                                callback: (v) => '₹' + (v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v)
+                            },
+                            grid: { color: 'rgba(30,37,48,0.8)' }
+                        }
+                    },
+                    interaction: { intersect: false, mode: 'index' }
+                }
+            });
+        }
+
+        // ── ANNOUNCEMENT ──
+        async function loadAnnouncement() {
+            const { data } = await db.from('announcements').select('*').eq('is_active', true).order('created_at', { ascending: false }).limit(1);
+            if (data && data.length) {
+                document.getElementById('annTitle').textContent = '📢 ' + data[0].title;
+                document.getElementById('annBody').textContent = data[0].body;
+                document.getElementById('announcementBanner').classList.add('show');
+            }
+        }
+
+        // ── SCROLL HELPERS ──
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); setActive(0); }
+        function scrollToChart() { document.querySelector('.chart-card').scrollIntoView({ behavior: 'smooth' }); setActive(1); }
+        function scrollToTx() { document.querySelector('.tx-list').scrollIntoView({ behavior: 'smooth' }); setActive(2); }
+        function scrollToProfile() { document.querySelector('.profile-card').scrollIntoView({ behavior: 'smooth' }); setActive(3); }
+
+        function setActive(index) {
+            document.querySelectorAll('.nav-item').forEach((el, i) => {
+                el.classList.toggle('active', i === index);
+            });
+        }
+
+        // ── LOGOUT ──
+        async function logout() {
+            await db.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        checkAuth();
+    </script>
+
+</body>
+
+</html>

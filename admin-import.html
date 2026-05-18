@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Import CSV — MARCSFUNDHANG</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0D0F14;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #151820;
+            border-bottom: 1px solid #1E2530;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #F0B429;
+            letter-spacing: 1px;
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid #1E2530;
+            color: #8B95A1;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout:hover {
+            border-color: #FF4D4D;
+            color: #FF4D4D;
+        }
+
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #151820;
+            border-right: 1px solid #1E2530;
+            padding: 1.5rem 0;
+            flex-shrink: 0;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: #8B95A1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar a:hover {
+            color: #fff;
+            background: #1E2530;
+        }
+
+        .sidebar a.active {
+            color: #F0B429;
+            border-left-color: #F0B429;
+            background: #1a1f2e;
+        }
+
+        .sidebar .section-title {
+            padding: 0.5rem 1.5rem;
+            color: #4a5568;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 1rem;
+        }
+
+        .main {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .page-sub {
+            color: #8B95A1;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #151820;
+            border: 1px solid #1E2530;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .upload-zone {
+            border: 2px dashed #1E2530;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1rem;
+        }
+
+        .upload-zone:hover {
+            border-color: #F0B429;
+            background: #1a1f2e;
+        }
+
+        .upload-zone.dragover {
+            border-color: #F0B429;
+            background: #1a1f2e;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .upload-text {
+            color: #8B95A1;
+            font-size: 0.9rem;
+        }
+
+        .upload-text span {
+            color: #F0B429;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .note {
+            background: #1a1f2e;
+            border: 1px solid #1E2530;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #8B95A1;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .note strong {
+            color: #F0B429;
+        }
+
+        .btn-download-template {
+            padding: 0.6rem 1.2rem;
+            background: transparent;
+            border: 1px solid #F0B429;
+            color: #F0B429;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-download-template:hover {
+            background: #F0B429;
+            color: #000;
+        }
+
+        .preview-wrap {
+            background: #151820;
+            border: 1px solid #1E2530;
+            border-radius: 12px;
+            overflow: hidden;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            background: #1E2530;
+            padding: 0.7rem 1rem;
+            text-align: left;
+            font-size: 0.78rem;
+            color: #8B95A1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #1E2530;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .btn-import {
+            padding: 0.75rem 1.5rem;
+            background: #F0B429;
+            color: #000;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: none;
+            transition: background 0.2s;
+        }
+
+        .btn-import:hover {
+            background: #d4a017;
+        }
+
+        .btn-import:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .success-msg {
+            background: #0a2a1a;
+            border: 1px solid #00C896;
+            color: #00C896;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-msg {
+            background: #2a1a1a;
+            border: 1px solid #FF4D4D;
+            color: #FF4D4D;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .progress {
+            background: #1E2530;
+            border-radius: 99px;
+            height: 8px;
+            margin-bottom: 1rem;
+            display: none;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: #F0B429;
+            height: 100%;
+            border-radius: 99px;
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div class="logo">MARCSFUNDHANG</div>
+        <div style="display:flex;align-items:center;gap:1rem;">
+            <span style="color:#8B95A1;font-size:0.85rem;" id="adminName">Admin</span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="layout">
+        <div class="sidebar">
+            <div class="section-title">Main</div>
+            <a href="admin-dashboard.html">📊 Overview</a>
+            <a href="admin.html">👥 All Investors</a>
+            <a href="admin-add-client.html">➕ Add Investor</a>
+            <div class="section-title">Tools</div>
+            <a href="admin-announcements.html">📢 Announcements</a>
+            <a href="admin-import.html" class="active">📤 Import CSV</a>
+            <a href="admin-export.html">📥 Export Data</a>
+            <a href="admin-reports.html">📜 Report History</a>
+        </div>
+
+        <div class="main">
+            <div class="page-title">📤 Import CSV</div>
+            <div class="page-sub">Bulk upload investor data from a CSV or Excel file.</div>
+
+            <div class="card">
+                <div class="card-title">Upload Instructions</div>
+                <div class="note">
+                    <strong>Required CSV columns (in this order):</strong><br>
+                    Full Name, Email, Mobile, Invested Amount, Current Value, Investment Date (YYYY-MM-DD)<br><br>
+                    <strong>Example row:</strong><br>
+                    Rahul Sharma, rahul@email.com, 9876543210, 100000, 114000, 2025-01-15
+                </div>
+                <button class="btn-download-template" onclick="downloadTemplate()">
+                    ⬇️ Download CSV Template
+                </button>
+
+                <div class="success-msg" id="successMsg"></div>
+                <div class="error-msg" id="errorMsg"></div>
+                <div class="progress" id="progressBar">
+                    <div class="progress-bar" id="progressFill"></div>
+                </div>
+
+                <input type="file" id="fileInput" accept=".csv" onchange="handleFile(event)" />
+
+                <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
+                    ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                    <div class="upload-icon">📂</div>
+                    <div class="upload-text">
+                        Drag & drop your CSV here or <span>browse file</span>
+                    </div>
+                </div>
+
+                <div class="preview-wrap" id="previewWrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                <th>Invested (₹)</th>
+                                <th>Current Value (₹)</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewBody"></tbody>
+                    </table>
+                </div>
+
+                <button class="btn-import" id="importBtn" onclick="importData()">
+                    ✅ Confirm & Import All
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let parsedRows = [];
+
+        async function checkAuth() {
+            const { data: { session } } = await db.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+            const { data: profile } = await db.from('profiles').select('role, full_name').eq('id', session.user.id).single();
+            if (!profile || profile.role !== 'admin') { window.location.href = 'index.html'; return; }
+            document.getElementById('adminName').textContent = profile.full_name || 'Admin';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('uploadZone').classList.add('dragover');
+        }
+
+        function handleDragLeave() {
+            document.getElementById('uploadZone').classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('uploadZone').classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) parseCSV(file);
+        }
+
+        function handleFile(e) {
+            const file = e.target.files[0];
+            if (file) parseCSV(file);
+        }
+
+        function parseCSV(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const lines = e.target.result.split('\n').filter(l => l.trim());
+                // Skip header row
+                const dataLines = lines[0].toLowerCase().includes('name') ? lines.slice(1) : lines;
+                parsedRows = dataLines.map(line => {
+                    const cols = line.split(',').map(c => c.trim());
+                    return {
+                        full_name: cols[0] || '',
+                        email: cols[1] || '',
+                        phone: cols[2] || '',
+                        invested_amount: parseFloat(cols[3]) || 0,
+                        current_value: parseFloat(cols[4]) || 0,
+                        investment_date: cols[5] || new Date().toISOString().split('T')[0]
+                    };
+                }).filter(r => r.full_name && r.email);
+
+                renderPreview();
+            };
+            reader.readAsText(file);
+        }
+
+        function renderPreview() {
+            const tbody = document.getElementById('previewBody');
+            tbody.innerHTML = parsedRows.map((r, i) => `
+        <tr>
+          <td style="color:#8B95A1">${i + 1}</td>
+          <td>${r.full_name}</td>
+          <td style="color:#8B95A1">${r.email}</td>
+          <td style="color:#8B95A1">${r.phone}</td>
+          <td>₹${r.invested_amount.toLocaleString('en-IN')}</td>
+          <td>₹${r.current_value.toLocaleString('en-IN')}</td>
+          <td>${r.investment_date}</td>
+        </tr>
+      `).join('');
+            document.getElementById('previewWrap').style.display = 'block';
+            document.getElementById('importBtn').style.display = 'inline-block';
+        }
+
+        async function importData() {
+            if (!parsedRows.length) return;
+            const btn = document.getElementById('importBtn');
+            btn.disabled = true;
+            btn.textContent = 'Importing...';
+            const progress = document.getElementById('progressBar');
+            const fill = document.getElementById('progressFill');
+            progress.style.display = 'block';
+
+            let success = 0;
+            let failed = 0;
+
+            // Get current investor count for ID generation
+            const { data: existing } = await db.from('profiles').select('investor_id').eq('role', 'client');
+            let count = (existing ? existing.length : 0) + 1;
+
+            for (let i = 0; i < parsedRows.length; i++) {
+                const row = parsedRows[i];
+                fill.style.width = ((i + 1) / parsedRows.length * 100) + '%';
+                try {
+                    const investorId = 'MFH-' + String(count).padStart(3, '0');
+                    const { data: authData, error: authError } = await db.auth.signUp({
+                        email: row.email,
+                        password: Math.random().toString(36).slice(-10),
+                        options: {
+                            emailRedirectTo: window.location.origin + '/set-password.html'
+                        }
+                    });
+                    if (authError) { failed++; continue; }
+                    const userId = authData.user.id;
+                    await db.from('profiles').insert({
+                        id: userId, investor_id: investorId,
+                        full_name: row.full_name, email: row.email,
+                        phone: row.phone, role: 'client', is_active: true
+                    });
+                    await db.from('portfolios').insert({
+                        client_id: userId, invested_amount: row.invested_amount,
+                        current_value: row.current_value,
+                        investment_date: row.investment_date, monthly_return: 0
+                    });
+                    await db.from('transactions').insert({
+                        client_id: userId, date: row.investment_date,
+                        type: 'Deposit', amount: row.invested_amount,
+                        current_value_snapshot: row.current_value,
+                        remark: 'Initial investment (CSV import)'
+                    });
+                    success++;
+                    count++;
+                } catch (err) {
+                    failed++;
+                }
+            }
+
+            btn.disabled = false;
+            btn.textContent = '✅ Confirm & Import All';
+            if (success > 0) {
+                document.getElementById('successMsg').textContent =
+                    `✅ Successfully imported ${success} investors!${failed > 0 ? ` (${failed} failed — duplicate emails skipped)` : ''}`;
+                document.getElementById('successMsg').style.display = 'block';
+            }
+            if (failed > 0 && success === 0) {
+                document.getElementById('errorMsg').textContent =
+                    `❌ Import failed. Check that emails are not already registered.`;
+                document.getElementById('errorMsg').style.display = 'block';
+            }
+        }
+
+        function downloadTemplate() {
+            const csv = `Full Name,Email,Mobile,Invested Amount,Current Value,Investment Date
+Rahul Sharma,rahul@example.com,9876543210,100000,114000,2025-01-15
+Priya Patel,priya@example.com,9876543211,50000,57500,2025-02-01`;
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'MARCSFUNDHANG_Import_Template.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function logout() {
+            await db.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        checkAuth();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile — MARCSFUNDHANG</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0D0F14;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #151820;
+            border-bottom: 1px solid #1E2530;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #F0B429;
+            letter-spacing: 1px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid #1E2530;
+            color: #8B95A1;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout:hover {
+            border-color: #FF4D4D;
+            color: #FF4D4D;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .page-sub {
+            color: #8B95A1;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-card {
+            background: #151820;
+            border: 1px solid #1E2530;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #F0B429, #d4a017);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 1.2rem;
+        }
+
+        .profile-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .profile-id {
+            color: #F0B429;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #1E2530;
+            margin: 1.2rem 0;
+        }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+        }
+
+        .field {}
+
+        .field-label {
+            color: #8B95A1;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+        }
+
+        .field-value {
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.65rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: #0a2a1a;
+            color: #00C896;
+        }
+
+        .badge-red {
+            background: #2a1a1a;
+            color: #FF4D4D;
+        }
+
+        .note-card {
+            background: #1a1f2e;
+            border: 1px solid #1E2530;
+            border-radius: 12px;
+            padding: 1.2rem;
+            color: #8B95A1;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #8B95A1;
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            transition: color 0.2s;
+        }
+
+        .back-btn:hover {
+            color: #F0B429;
+        }
+
+        @media (max-width: 600px) {
+            .field-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div class="logo">MARCSFUNDHANG</div>
+        <div class="nav-right">
+            <span style="color:#8B95A1;font-size:0.85rem;" id="navName">Investor</span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+
+        <div class="page-title">👤 My Profile</div>
+        <div class="page-sub">Your account details — view only. Contact MARCSFUNDHANG to update.</div>
+
+        <div class="profile-card">
+            <div class="profile-avatar" id="avatarInitial">?</div>
+            <div class="profile-name" id="profileName">Loading...</div>
+            <div class="profile-id" id="profileId">Loading...</div>
+
+            <hr class="divider" />
+
+            <div class="field-grid">
+                <div class="field">
+                    <div class="field-label">Email Address</div>
+                    <div class="field-value" id="profileEmail">-</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Mobile Number</div>
+                    <div class="field-value" id="profilePhone">-</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Member Since</div>
+                    <div class="field-value" id="profileSince">-</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Account Status</div>
+                    <div class="field-value" id="profileStatus">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="note-card">
+            🔒 Your profile information is managed by MARCSFUNDHANG.<br>
+            To update your details, please contact us directly.
+        </div>
+    </div>
+
+    <script>
+        async function checkAuth() {
+            const { data: { session } } = await db.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+
+            const { data: profile } = await db
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+
+            if (!profile) { window.location.href = 'index.html'; return; }
+            if (profile.role === 'admin') { window.location.href = 'admin-dashboard.html'; return; }
+
+            const firstName = (profile.full_name || 'I').split(' ')[0];
+            document.getElementById('navName').textContent = profile.full_name || 'Investor';
+            document.getElementById('avatarInitial').textContent = firstName[0].toUpperCase();
+            document.getElementById('profileName').textContent = profile.full_name || '-';
+            document.getElementById('profileId').textContent = profile.investor_id || '-';
+            document.getElementById('profileEmail').textContent = profile.email || '-';
+            document.getElementById('profilePhone').textContent = profile.phone || '-';
+            document.getElementById('profileSince').textContent = new Date(profile.created_at).toLocaleDateString('en-IN');
+            document.getElementById('profileStatus').innerHTML = profile.is_active
+                ? '<span class="badge badge-green">Active</span>'
+                : '<span class="badge badge-red">Suspended</span>';
+        }
+
+        async function logout() {
+            await db.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        checkAuth();
+    </script>
+
+</body>
+
+</html>

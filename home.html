@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>MARCSFUNDHANG - Grow Your Wealth</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#b9c7e4",
+                        "surface-container-high": "#282a2b",
+                        "surface-bright": "#373a3b",
+                        "inverse-primary": "#515f78",
+                        "surface-container-lowest": "#0c0f10",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-secondary": "#313030",
+                        "error-container": "#93000a",
+                        "on-tertiary-container": "#9e7d3a",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed": "#261900",
+                        "on-secondary-fixed-variant": "#474646",
+                        "on-secondary-container": "#bab8b7",
+                        "on-surface-variant": "#c5c6cd",
+                        "on-primary": "#233148",
+                        "surface": "#111415",
+                        "surface-container": "#1d2021",
+                        "primary-container": "#0a192f",
+                        "tertiary": "#e9c176",
+                        "secondary-container": "#4a4949",
+                        "outline": "#8f9097",
+                        "tertiary-fixed": "#ffdea5",
+                        "primary-fixed-dim": "#b9c7e4",
+                        "outline-variant": "#44474d",
+                        "on-primary-fixed-variant": "#39475f",
+                        "surface-container-highest": "#323536",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-container": "#231700",
+                        "surface-variant": "#323536",
+                        "primary-fixed": "#d6e3ff",
+                        "on-surface": "#e1e3e4",
+                        "on-primary-container": "#74829d",
+                        "on-tertiary-fixed-variant": "#5d4201",
+                        "on-primary-fixed": "#0d1c32",
+                        "on-error": "#690005",
+                        "tertiary-fixed-dim": "#e9c176",
+                        "surface-container-low": "#191c1d",
+                        "secondary-fixed": "#e5e2e1",
+                        "inverse-on-surface": "#2e3132",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-background": "#e1e3e4",
+                        "inverse-surface": "#e1e3e4",
+                        "background": "#111415",
+                        "surface-dim": "#111415",
+                        "secondary": "#c8c6c5",
+                        "surface-tint": "#b9c7e4",
+                        "on-tertiary": "#412d00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "32px",
+                        "unit": "8px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "container-max-width": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-xl-mobile": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-xl-mobile": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .bg-dark-navy {
+            background-color: #0D0F14;
+        }
+
+        .bg-card-surface {
+            background-color: #151820;
+        }
+
+        .text-gold {
+            color: #F0B429;
+        }
+
+        .bg-gold {
+            background-color: #F0B429;
+        }
+
+        .border-gold {
+            border-color: #F0B429;
+        }
+
+        .text-success {
+            color: #00C896;
+        }
+
+        .bg-success {
+            background-color: #00C896;
+        }
+
+        .text-secondary {
+            color: #8B95A1;
+        }
+
+        .border-line {
+            border-color: #1E2530;
+        }
+
+        /* Mobile menu */
+        #mobile-menu {
+            display: none;
+        }
+
+        #mobile-menu.open {
+            display: flex;
+        }
+
+        details>summary {
+            list-style: none;
+        }
+
+        details>summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details[open] summary~* {
+            animation: sweep .5s ease-in-out;
+        }
+
+        @keyframes sweep {
+            0% {
+                opacity: 0;
+                margin-top: -10px
+            }
+
+            100% {
+                opacity: 1;
+                margin-top: 0px
+            }
+        }
+
+        details[open] summary .expand-icon {
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+
+<body class="bg-dark-navy text-white font-body-md min-h-screen flex flex-col">
+
+    <!-- NAVBAR -->
+    <nav
+        class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-[#050B14]/40">
+        <div class="flex justify-between items-center h-20 px-6 md:px-margin-desktop max-w-container-max-width mx-auto">
+            <a href="home.html" class="font-headline-md text-headline-md font-bold tracking-tighter text-gold">
+                MARCSFUNDHANG
+            </a>
+            <!-- Desktop links -->
+            <div class="hidden md:flex gap-8">
+                <a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors duration-300"
+                    href="#about">About</a>
+                <a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors duration-300"
+                    href="#how-it-works">How It Works</a>
+                <a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors duration-300"
+                    href="#testimonials">Results</a>
+                <a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors duration-300"
+                    href="#faq">FAQ</a>
+                <a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors duration-300"
+                    href="#contact">Contact</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="index.html"
+                    class="bg-gold text-[#111415] font-label-sm text-label-sm px-6 py-3 rounded-full hover:bg-white transition-all duration-300 font-bold">
+                    Investor Login
+                </a>
+                <!-- Hamburger -->
+                <button class="md:hidden text-white" onclick="toggleMenu()">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="flex-col gap-4 px-6 pb-4 bg-surface/95 border-t border-line md:hidden">
+            <a class="text-on-surface-variant hover:text-gold py-2 block" href="#about">About</a>
+            <a class="text-on-surface-variant hover:text-gold py-2 block" href="#how-it-works">How It Works</a>
+            <a class="text-on-surface-variant hover:text-gold py-2 block" href="#testimonials">Results</a>
+            <a class="text-on-surface-variant hover:text-gold py-2 block" href="#faq">FAQ</a>
+            <a class="text-on-surface-variant hover:text-gold py-2 block" href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-20">
+
+        <!-- HERO -->
+        <section
+            class="min-h-screen flex items-center justify-center relative overflow-hidden px-6 md:px-margin-desktop py-20">
+            <div
+                class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-3/4 bg-gold/10 blur-[120px] rounded-full pointer-events-none">
+            </div>
+            <div class="max-w-container-max-width mx-auto relative z-10 text-center flex flex-col items-center">
+                <div
+                    class="inline-flex items-center gap-2 bg-card-surface border border-line px-4 py-2 rounded-full mb-8">
+                    <span class="text-gold">✦</span>
+                    <span class="font-label-sm text-label-sm text-secondary">Trusted Portfolio Management</span>
+                </div>
+                <h1 class="font-headline-xl text-4xl md:text-headline-xl mb-6 max-w-4xl">
+                    Grow Your Wealth with <span class="text-gold">MARCSFUNDHANG</span>
+                </h1>
+                <p class="font-body-lg text-body-lg text-secondary mb-10 max-w-2xl">
+                    We manage your investments with expertise and transparency. Track your portfolio growth in real-time
+                    through your personal dashboard.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 mb-16">
+                    <a href="index.html"
+                        class="bg-gold text-[#111415] font-bold px-8 py-4 rounded-full hover:opacity-90 transition-opacity">
+                        Login to Your Portfolio
+                    </a>
+                    <a href="#about"
+                        class="border border-line text-white font-bold px-8 py-4 rounded-full hover:bg-card-surface transition-colors">
+                        Learn More
+                    </a>
+                </div>
+                <div class="flex flex-wrap justify-center gap-8 md:gap-16 pt-8 border-t border-line w-full max-w-3xl">
+                    <div class="text-center">
+                        <div class="font-headline-md text-headline-md mb-1">100+</div>
+                        <div class="font-label-sm text-label-sm text-secondary">Happy Investors</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="font-headline-md text-headline-md mb-1">₹0</div>
+                        <div class="font-label-sm text-label-sm text-secondary">Hidden Fees</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="font-headline-md text-headline-md mb-1 text-success">100%</div>
+                        <div class="font-label-sm text-label-sm text-secondary">Transparent</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT -->
+        <section class="py-24 px-6 md:px-margin-desktop bg-card-surface/50" id="about">
+            <div class="max-w-container-max-width mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div
+                    class="aspect-square bg-card-surface rounded-3xl border border-line flex items-center justify-center overflow-hidden relative group">
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-navy/80 to-transparent z-10"></div>
+                    <span class="material-symbols-outlined text-9xl text-line z-0 opacity-20"
+                        style="font-size:8rem;">person</span>
+                    <!-- REPLACE: swap above span with an <img> tag when you have a founder photo -->
+                    <!-- <img src="founder.jpg" alt="Founder" class="w-full h-full object-cover"> -->
+                </div>
+                <div>
+                    <div class="font-label-sm text-label-sm text-gold mb-4 uppercase tracking-widest">About the Founder
+                    </div>
+                    <h2 class="font-headline-lg text-headline-lg mb-6">Experienced. Trusted. Transparent.</h2>
+                    <p class="font-body-md text-body-md text-secondary mb-8">
+                        With years of experience navigating complex financial markets, MARCSFUNDHANG was built on one
+                        simple belief — every investor deserves clarity about where their money is going and how it is
+                        growing.
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-4">
+                            <span class="material-symbols-outlined text-success">check_circle</span>
+                            <span class="font-body-md text-body-md">Years of hands-on market experience</span>
+                        </li>
+                        <li class="flex items-center gap-4">
+                            <span class="material-symbols-outlined text-success">check_circle</span>
+                            <span class="font-body-md text-body-md">Personalized portfolio management</span>
+                        </li>
+                        <li class="flex items-center gap-4">
+                            <span class="material-symbols-outlined text-success">check_circle</span>
+                            <span class="font-body-md text-body-md">Full transparency — track 24/7</span>
+                        </li>
+                        <li class="flex items-center gap-4">
+                            <span class="material-symbols-outlined text-success">check_circle</span>
+                            <span class="font-body-md text-body-md">Direct communication, no middlemen</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW IT WORKS -->
+        <section class="py-24 px-6 md:px-margin-desktop" id="how-it-works">
+            <div class="max-w-container-max-width mx-auto text-center">
+                <div class="font-label-sm text-label-sm text-gold mb-4 uppercase tracking-widest">Simple Process</div>
+                <h2 class="font-headline-lg text-headline-lg mb-16">How It Works</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-card-surface p-8 rounded-2xl border border-line relative">
+                        <div
+                            class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gold rounded-full flex items-center justify-center text-[#111415] font-bold text-xl">
+                            1</div>
+                        <div class="mb-6 mt-4 flex justify-center">
+                            <span class="material-symbols-outlined text-gold"
+                                style="font-size:3rem;">account_balance_wallet</span>
+                        </div>
+                        <h3 class="font-headline-md text-headline-md mb-4">You Invest</h3>
+                        <p class="font-body-md text-secondary">Contact us to get started. We set up your investor
+                            account and you make your initial investment.</p>
+                    </div>
+                    <div class="bg-card-surface p-8 rounded-2xl border border-line relative">
+                        <div
+                            class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gold rounded-full flex items-center justify-center text-[#111415] font-bold text-xl">
+                            2</div>
+                        <div class="mb-6 mt-4 flex justify-center">
+                            <span class="material-symbols-outlined text-gold" style="font-size:3rem;">monitoring</span>
+                        </div>
+                        <h3 class="font-headline-md text-headline-md mb-4">We Manage</h3>
+                        <p class="font-body-md text-secondary">Our team actively manages your portfolio with a focus on
+                            consistent, sustainable growth.</p>
+                    </div>
+                    <div class="bg-card-surface p-8 rounded-2xl border border-line relative">
+                        <div
+                            class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gold rounded-full flex items-center justify-center text-[#111415] font-bold text-xl">
+                            3</div>
+                        <div class="mb-6 mt-4 flex justify-center">
+                            <span class="material-symbols-outlined text-gold" style="font-size:3rem;">query_stats</span>
+                        </div>
+                        <h3 class="font-headline-md text-headline-md mb-4">Track Your Growth</h3>
+                        <p class="font-body-md text-secondary">Log into your personal dashboard anytime to see your
+                            current value, returns, and full history.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TESTIMONIALS -->
+        <section class="py-24 px-6 md:px-margin-desktop bg-card-surface/30" id="testimonials">
+            <div class="max-w-container-max-width mx-auto">
+                <div class="font-label-sm text-label-sm text-gold mb-4 uppercase tracking-widest text-center">Investor
+                    Results</div>
+                <h2 class="font-headline-lg text-headline-lg text-center mb-16">What Our Investors Say</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-card-surface p-8 rounded-2xl border border-line flex flex-col h-full">
+                        <div class="flex gap-1 mb-4 text-gold">
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                        </div>
+                        <p class="font-body-md text-secondary italic mb-8 flex-grow">"The transparency is unmatched. I
+                            can see exactly where my money is and how it's performing. Best decision I made for my
+                            savings."</p>
+                        <div class="flex items-center justify-between border-t border-line pt-6">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-10 h-10 bg-gold/20 text-gold rounded-full flex items-center justify-center font-bold">
+                                    R</div>
+                                <div class="font-label-sm">Rahul S.</div>
+                            </div>
+                            <div
+                                class="bg-success/10 text-success border border-success/30 px-3 py-1 rounded-full text-xs font-bold">
+                                ₹5,00,000 → ₹6,15,000 (+23%)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-card-surface p-8 rounded-2xl border border-line flex flex-col h-full">
+                        <div class="flex gap-1 mb-4 text-gold">
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                        </div>
+                        <p class="font-body-md text-secondary italic mb-8 flex-grow">"I didn't have the time to manage
+                            my investments actively. The team takes care of everything while keeping me fully in the
+                            loop."</p>
+                        <div class="flex items-center justify-between border-t border-line pt-6">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-10 h-10 bg-gold/20 text-gold rounded-full flex items-center justify-center font-bold">
+                                    A</div>
+                                <div class="font-label-sm">Amit P.</div>
+                            </div>
+                            <div
+                                class="bg-success/10 text-success border border-success/30 px-3 py-1 rounded-full text-xs font-bold">
+                                ₹2,50,000 → ₹2,85,000 (+14%)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-card-surface p-8 rounded-2xl border border-line flex flex-col h-full">
+                        <div class="flex gap-1 mb-4 text-gold">
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                            <span class="material-symbols-outlined"
+                                style="font-variation-settings: 'FILL' 1">star</span>
+                        </div>
+                        <p class="font-body-md text-secondary italic mb-8 flex-grow">"Highly professional approach. The
+                            regular updates and the personal dashboard make it very easy to track my progress."</p>
+                        <div class="flex items-center justify-between border-t border-line pt-6">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-10 h-10 bg-gold/20 text-gold rounded-full flex items-center justify-center font-bold">
+                                    P</div>
+                                <div class="font-label-sm">Priya M.</div>
+                            </div>
+                            <div
+                                class="bg-success/10 text-success border border-success/30 px-3 py-1 rounded-full text-xs font-bold">
+                                ₹1,00,000 → ₹1,18,000 (+18%)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-center text-xs text-secondary/50 mt-8">* Results vary. Past performance does not
+                    guarantee future returns.</p>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="py-24 px-6 md:px-margin-desktop" id="faq">
+            <div class="max-w-3xl mx-auto">
+                <div class="font-label-sm text-label-sm text-gold mb-4 uppercase tracking-widest text-center">Common
+                    Questions</div>
+                <h2 class="font-headline-lg text-headline-lg text-center mb-12">Frequently Asked Questions</h2>
+                <div class="space-y-4">
+                    <details class="bg-card-surface rounded-xl border border-line overflow-hidden group">
+                        <summary class="flex justify-between items-center cursor-pointer p-6 font-semibold text-lg">
+                            How do I get started?
+                            <span
+                                class="material-symbols-outlined expand-icon transition-transform duration-300 text-gold">add</span>
+                        </summary>
+                        <div class="p-6 pt-0 text-secondary border-t border-line mt-2">
+                            Simply contact us via WhatsApp or email. We will set up your investor account and send you
+                            login credentials for your personal dashboard.
+                        </div>
+                    </details>
+                    <details class="bg-card-surface rounded-xl border border-line overflow-hidden group">
+                        <summary class="flex justify-between items-center cursor-pointer p-6 font-semibold text-lg">
+                            What is the minimum investment?
+                            <span
+                                class="material-symbols-outlined expand-icon transition-transform duration-300 text-gold">add</span>
+                        </summary>
+                        <div class="p-6 pt-0 text-secondary border-t border-line mt-2">
+                            Please contact us directly for information about minimum investment amounts. We work with
+                            each investor individually based on their financial goals.
+                        </div>
+                    </details>
+                    <details class="bg-card-surface rounded-xl border border-line overflow-hidden group">
+                        <summary class="flex justify-between items-center cursor-pointer p-6 font-semibold text-lg">
+                            How often is my portfolio updated?
+                            <span
+                                class="material-symbols-outlined expand-icon transition-transform duration-300 text-gold">add</span>
+                        </summary>
+                        <div class="p-6 pt-0 text-secondary border-t border-line mt-2">
+                            Your portfolio value is updated regularly by our team. You can see the latest value, monthly
+                            returns, and full transaction history on your dashboard at all times.
+                        </div>
+                    </details>
+                    <details class="bg-card-surface rounded-xl border border-line overflow-hidden group">
+                        <summary class="flex justify-between items-center cursor-pointer p-6 font-semibold text-lg">
+                            Is my money safe?
+                            <span
+                                class="material-symbols-outlined expand-icon transition-transform duration-300 text-gold">add</span>
+                        </summary>
+                        <div class="p-6 pt-0 text-secondary border-t border-line mt-2">
+                            All investments carry risk and returns are not guaranteed. We manage portfolios with a
+                            careful focus on risk management. Please read our full risk disclaimer before investing.
+                        </div>
+                    </details>
+                    <details class="bg-card-surface rounded-xl border border-line overflow-hidden group">
+                        <summary class="flex justify-between items-center cursor-pointer p-6 font-semibold text-lg">
+                            How can I withdraw my money?
+                            <span
+                                class="material-symbols-outlined expand-icon transition-transform duration-300 text-gold">add</span>
+                        </summary>
+                        <div class="p-6 pt-0 text-secondary border-t border-line mt-2">
+                            To request a withdrawal, contact us directly via WhatsApp or email. We will process your
+                            request and update your portfolio accordingly.
+                        </div>
+                    </details>
+                    <details class="bg-card-surface rounded-xl border border-line overflow-hidden group">
+                        <summary class="flex justify-between items-center cursor-pointer p-6 font-semibold text-lg">
+                            Can I track my portfolio anytime?
+                            <span
+                                class="material-symbols-outlined expand-icon transition-transform duration-300 text-gold">add</span>
+                        </summary>
+                        <div class="p-6 pt-0 text-secondary border-t border-line mt-2">
+                            Yes! Once registered, you get a personal login to your investor dashboard where you can see
+                            your portfolio value, growth chart, and complete transaction history 24/7.
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT -->
+        <section class="py-24 px-6 md:px-margin-desktop bg-card-surface/50 border-t border-line" id="contact">
+            <div class="max-w-container-max-width mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="font-label-sm text-label-sm text-gold mb-4 uppercase tracking-widest">Get In Touch</div>
+                    <h2 class="font-headline-lg text-headline-lg mb-6">Contact MARCSFUNDHANG</h2>
+                    <p class="text-secondary mb-10 text-lg">Have questions or ready to start investing? Reach out to us
+                        directly.</p>
+                    <div class="space-y-6 mb-12">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 rounded-full bg-card-surface border border-line flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-gold">call</span>
+                            </div>
+                            <div>
+                                <div class="text-sm text-secondary">Phone / WhatsApp</div>
+                                <!-- REPLACE with real phone number -->
+                                <div class="font-semibold text-lg">+91 XXXXXXXXXX</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 rounded-full bg-card-surface border border-line flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-gold">mail</span>
+                            </div>
+                            <div>
+                                <div class="text-sm text-secondary">Email</div>
+                                <!-- REPLACE with real email -->
+                                <div class="font-semibold text-lg">contact@marcsfundhang.com</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 rounded-full bg-card-surface border border-line flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-gold">location_on</span>
+                            </div>
+                            <div>
+                                <div class="text-sm text-secondary">Location</div>
+                                <!-- REPLACE with real location -->
+                                <div class="font-semibold text-lg">Your City, India</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- REPLACE 91XXXXXXXXXX with real WhatsApp number -->
+                    <a href="https://wa.me/91XXXXXXXXXX" target="_blank"
+                        class="bg-[#25D366] hover:bg-[#1ebd5b] text-white px-8 py-4 rounded-full font-bold flex items-center gap-3 transition-colors text-lg w-fit">
+                        <span class="material-symbols-outlined">forum</span>
+                        Chat on WhatsApp
+                    </a>
+                </div>
+                <div class="bg-card-surface p-10 rounded-3xl border border-line relative overflow-hidden">
+                    <div
+                        class="absolute -right-20 -top-20 w-64 h-64 bg-gold/5 blur-[100px] rounded-full pointer-events-none">
+                    </div>
+                    <h3 class="font-headline-lg text-3xl mb-4">Ready to invest?</h3>
+                    <p class="text-secondary mb-8">Join over 100+ investors growing their wealth with our transparent
+                        portfolio management.</p>
+                    <a href="https://wa.me/91XXXXXXXXXX" target="_blank"
+                        class="w-full bg-gold text-[#111415] font-bold py-4 rounded-lg hover:bg-white transition-colors mt-4 flex items-center justify-center gap-2 text-lg">
+                        <span class="material-symbols-outlined">forum</span>
+                        Get Started on WhatsApp
+                    </a>
+                    <div class="mt-6 pt-6 border-t border-line text-center">
+                        <p class="text-secondary text-sm">Or login if you already have an account</p>
+                        <a href="index.html" class="text-gold font-semibold text-sm hover:underline mt-2 inline-block">
+                            → Investor Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-surface-container-lowest w-full py-20 border-t border-outline-variant/30">
+        <div class="px-6 md:px-margin-desktop max-w-container-max-width mx-auto flex flex-col items-center text-center">
+            <div class="font-headline-lg text-headline-lg font-bold mb-8 text-gold">
+                MARCSFUNDHANG
+            </div>
+            <div class="flex flex-wrap justify-center gap-8 mb-12">
+                <a class="font-body-md text-body-md text-on-surface-variant hover:text-gold transition-colors duration-200"
+                    href="home.html">Home</a>
+                <a class="font-body-md text-body-md text-on-surface-variant hover:text-gold transition-colors duration-200"
+                    href="index.html">Investor Login</a>
+                <a class="font-body-md text-body-md text-on-surface-variant hover:text-gold transition-colors duration-200"
+                    href="privacy.html">Privacy Policy</a>
+                <a class="font-body-md text-body-md text-on-surface-variant hover:text-gold transition-colors duration-200"
+                    href="terms.html">Terms & Conditions</a>
+                <a class="font-body-md text-body-md text-on-surface-variant hover:text-gold transition-colors duration-200"
+                    href="disclaimer.html">Risk Disclaimer</a>
+            </div>
+            <div
+                class="font-body-md text-body-md text-on-surface-variant max-w-4xl text-secondary/60 text-sm leading-relaxed">
+                ⚠️ Investments are subject to market risks. Returns are not guaranteed. Past performance does not
+                guarantee future results.
+                Please read all related documents carefully before investing.
+                © 2026 MARCSFUNDHANG. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('open');
+        }
+
+        // Close mobile menu on link click
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.remove('open');
+            });
+        });
+    </script>
+
+</body>
+
+</html>
