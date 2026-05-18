@@ -1,780 +1,477 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MARCSFUNDHANG — Login</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg: #0D0F14;
-            --card: #151820;
-            --card2: #1a1f2e;
-            --border: #1E2530;
-            --gold: #F0B429;
-            --gold-dim: #d4a017;
-            --green: #00C896;
-            --red: #FF4D4D;
-            --white: #FFFFFF;
-            --grey: #8B95A1;
-            --grey-dim: #4a5568;
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--white);
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* ── BACKGROUND EFFECTS ── */
-        .bg-glow {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            pointer-events: none;
-            animation: pulse 6s ease-in-out infinite;
-        }
-
-        .bg-glow-1 {
-            width: 400px;
-            height: 400px;
-            background: rgba(240, 180, 41, 0.06);
-            top: -100px;
-            left: -100px;
-            animation-delay: 0s;
-        }
-
-        .bg-glow-2 {
-            width: 350px;
-            height: 350px;
-            background: rgba(0, 200, 150, 0.04);
-            bottom: -80px;
-            right: -80px;
-            animation-delay: 3s;
-        }
-
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 0.6;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 1;
-                transform: scale(1.1);
-            }
-        }
-
-        /* ── MAIN WRAPPER ── */
-        .wrapper {
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            position: relative;
-            z-index: 10;
-        }
-
-        /* ── LOGIN CARD ── */
-        .login-card {
-            width: 100%;
-            max-width: 420px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 2.5rem 2rem;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        @keyframes slideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ── LOGO ── */
-        .logo-wrap {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .logo-icon {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, var(--gold), var(--gold-dim));
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            font-size: 1.5rem;
-            box-shadow: 0 8px 24px rgba(240, 180, 41, 0.3);
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
-            opacity: 0;
-        }
-
-        .logo-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--gold);
-            letter-spacing: 1.5px;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
-            opacity: 0;
-        }
-
-        .logo-tagline {
-            font-size: 0.8rem;
-            color: var(--grey);
-            margin-top: 0.3rem;
-            font-weight: 400;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
-            opacity: 0;
-        }
-
-        /* ── FORM TITLE ── */
-        .form-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
-            opacity: 0;
-        }
-
-        .form-sub {
-            font-size: 0.82rem;
-            color: var(--grey);
-            margin-bottom: 1.8rem;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
-            opacity: 0;
-        }
-
-        /* ── FORM FIELDS ── */
-        .field {
-            margin-bottom: 1.1rem;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
-            opacity: 0;
-        }
-
-        .field:nth-child(2) {
-            animation-delay: 0.4s;
-        }
-
-        .field label {
-            display: block;
-            font-size: 0.78rem;
-            font-weight: 500;
-            color: var(--grey);
-            margin-bottom: 0.5rem;
-            letter-spacing: 0.3px;
-        }
-
-        .input-wrap {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--grey-dim);
-            font-size: 1rem;
-            pointer-events: none;
-            transition: color 0.2s;
-        }
-
-        .field input {
-            width: 100%;
-            padding: 0.85rem 1rem 0.85rem 2.8rem;
-            background: var(--bg);
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            color: var(--white);
-            font-size: 0.9rem;
-            font-family: 'Inter', sans-serif;
-            outline: none;
-            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
-            -webkit-appearance: none;
-        }
-
-        .field input:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(240, 180, 41, 0.1);
-            background: var(--card2);
-        }
-
-        .field input:focus+.input-icon,
-        .input-wrap:focus-within .input-icon {
-            color: var(--gold);
-        }
-
-        .field input::placeholder {
-            color: var(--grey-dim);
-        }
-
-        /* password toggle */
-        .pw-toggle {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--grey-dim);
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 500;
-            font-family: 'Inter', sans-serif;
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            transition: color 0.2s, background 0.2s;
-        }
-
-        .pw-toggle:hover {
-            color: var(--gold);
-            background: rgba(240, 180, 41, 0.08);
-        }
-
-        /* ── FORGOT LINK ── */
-        .forgot-wrap {
-            text-align: right;
-            margin-top: -0.5rem;
-            margin-bottom: 1.2rem;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.45s forwards;
-            opacity: 0;
-        }
-
-        .forgot-link {
-            font-size: 0.78rem;
-            color: var(--grey);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .forgot-link:hover {
-            color: var(--gold);
-        }
-
-        /* ── LOGIN BUTTON ── */
-        .btn-login {
-            width: 100%;
-            padding: 0.9rem;
-            background: var(--gold);
-            color: #000;
-            font-weight: 700;
-            font-size: 0.95rem;
-            font-family: 'Inter', sans-serif;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-            box-shadow: 0 4px 20px rgba(240, 180, 41, 0.3);
-            letter-spacing: 0.3px;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
-            opacity: 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-login::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(rgba(255, 255, 255, 0.1), transparent);
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .btn-login:hover {
-            background: var(--gold-dim);
-            transform: translateY(-1px);
-            box-shadow: 0 8px 28px rgba(240, 180, 41, 0.4);
-        }
-
-        .btn-login:hover::after {
-            opacity: 1;
-        }
-
-        .btn-login:active {
-            transform: translateY(0);
-        }
-
-        .btn-login:disabled {
-            background: var(--border);
-            color: var(--grey);
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-
-        /* loading spinner inside button */
-        .btn-login .spinner {
-            display: none;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(0, 0, 0, 0.2);
-            border-top-color: #000;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            margin: 0 auto;
-        }
-
-        .btn-login.loading .btn-text {
-            display: none;
-        }
-
-        .btn-login.loading .spinner {
-            display: block;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* ── MESSAGES ── */
-        .msg {
-            border-radius: 10px;
-            padding: 0.75rem 1rem;
-            font-size: 0.82rem;
-            margin-bottom: 1rem;
-            display: none;
-            align-items: flex-start;
-            gap: 0.6rem;
-            animation: msgIn 0.3s ease;
-            line-height: 1.5;
-        }
-
-        @keyframes msgIn {
-            from {
-                opacity: 0;
-                transform: translateY(-6px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .msg.show {
-            display: flex;
-        }
-
-        .msg-error {
-            background: rgba(255, 77, 77, 0.08);
-            border: 1px solid rgba(255, 77, 77, 0.3);
-            color: #FF4D4D;
-        }
-
-        .msg-success {
-            background: rgba(0, 200, 150, 0.08);
-            border: 1px solid rgba(0, 200, 150, 0.3);
-            color: #00C896;
-        }
-
-        .msg-icon {
-            font-size: 1rem;
-            flex-shrink: 0;
-            margin-top: 0.05rem;
-        }
-
-        /* ── DIVIDER ── */
-        .divider {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin: 1.5rem 0;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
-            opacity: 0;
-        }
-
-        .divider-line {
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
-
-        .divider-text {
-            font-size: 0.75rem;
-            color: var(--grey-dim);
-        }
-
-        /* ── FORGOT FORM ── */
-        .forgot-form {
-            display: none;
-        }
-
-        .forgot-form.active {
-            display: block;
-        }
-
-        .login-form.hidden {
-            display: none;
-        }
-
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.8rem;
-            color: var(--grey);
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-family: 'Inter', sans-serif;
-            padding: 0;
-            margin-bottom: 1.2rem;
-            transition: color 0.2s;
-        }
-
-        .back-btn:hover {
-            color: var(--gold);
-        }
-
-        /* ── TRUST BADGES ── */
-        .trust-row {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
-            opacity: 0;
-        }
-
-        .trust-item {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.72rem;
-            color: var(--grey-dim);
-        }
-
-        .trust-item span {
-            font-size: 0.85rem;
-        }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 480px) {
-            .wrapper {
-                padding: 1rem;
-                align-items: flex-end;
-            }
-
-            .login-card {
-                border-radius: 24px 24px 0 0;
-                padding: 2rem 1.5rem 2.5rem;
-                max-width: 100%;
-                box-shadow: 0 -10px 60px rgba(0, 0, 0, 0.5);
-            }
-
-            .bg-glow-1 {
-                width: 250px;
-                height: 250px;
-            }
-
-            .bg-glow-2 {
-                width: 200px;
-                height: 200px;
-            }
-        }
-
-        @media (min-width: 481px) and (max-width: 768px) {
-            .login-card {
-                max-width: 380px;
-            }
-        }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>MARCSFUNDHANG — Login</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#080A0F;
+  --surface:#0E1118;
+  --surface2:#13161F;
+  --border:#1C2130;
+  --border2:#252B3B;
+  --gold:#E8AB2D;
+  --gold2:#C8921A;
+  --gold-glow:rgba(232,171,45,0.12);
+  --gold-faint:rgba(232,171,45,0.06);
+  --green:#0FBA8A;
+  --red:#F05252;
+  --text:#F0F2F7;
+  --muted:#6B7689;
+  --muted2:#3D4558;
+  --font:'DM Sans',sans-serif;
+  --serif:'DM Serif Display',serif;
+}
+
+html,body{height:100%;overflow:hidden}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  display:grid;
+  place-items:center;
+  min-height:100vh;
+  min-height:100dvh;
+  position:relative;
+}
+
+/* ─ BACKGROUND ─ */
+.canvas{
+  position:fixed;inset:0;
+  overflow:hidden;pointer-events:none;
+  z-index:0;
+}
+.orb{
+  position:absolute;border-radius:50%;
+  filter:blur(90px);
+  animation:breathe 8s ease-in-out infinite;
+}
+.orb-a{
+  width:min(500px,80vw);height:min(500px,80vw);
+  background:radial-gradient(circle,rgba(232,171,45,.10) 0%,transparent 70%);
+  top:-15%;left:-10%;animation-delay:0s;
+}
+.orb-b{
+  width:min(400px,70vw);height:min(400px,70vw);
+  background:radial-gradient(circle,rgba(15,186,138,.06) 0%,transparent 70%);
+  bottom:-10%;right:-5%;animation-delay:4s;
+}
+.orb-c{
+  width:min(300px,60vw);height:min(300px,60vw);
+  background:radial-gradient(circle,rgba(232,171,45,.04) 0%,transparent 70%);
+  top:40%;left:55%;animation-delay:2s;
+}
+.grid-overlay{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+@keyframes breathe{
+  0%,100%{opacity:.7;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.08)}
+}
+
+/* ─ LAYOUT ─ */
+.page{
+  position:relative;z-index:1;
+  width:100%;min-height:100vh;min-height:100dvh;
+  display:grid;
+  grid-template-columns:1fr;
+  place-items:center;
+  padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);
+}
+
+/* ─ CARD ─ */
+.card{
+  width:min(460px,100%);
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:clamp(1.75rem,5vw,2.75rem) clamp(1.5rem,5vw,2.5rem);
+  box-shadow:0 32px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.025) inset;
+  animation:rise .65s cubic-bezier(.2,1,.3,1) both;
+}
+@keyframes rise{
+  from{opacity:0;transform:translateY(28px) scale(.98)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* ─ LOGO ─ */
+.logo{text-align:center;margin-bottom:2rem}
+.logo-badge{
+  width:60px;height:60px;margin:0 auto 1rem;
+  background:linear-gradient(140deg,var(--gold),var(--gold2));
+  border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;
+  box-shadow:0 8px 28px rgba(232,171,45,.28);
+  animation:rise .65s cubic-bezier(.2,1,.3,1) .08s both;
+}
+.logo-name{
+  font-family:var(--serif);
+  font-size:1.3rem;color:var(--gold);
+  letter-spacing:.06em;
+  animation:rise .65s cubic-bezier(.2,1,.3,1) .12s both;
+}
+.logo-sub{
+  font-size:.78rem;color:var(--muted);font-weight:300;
+  margin-top:.35rem;
+  animation:rise .65s cubic-bezier(.2,1,.3,1) .16s both;
+}
+
+/* ─ MESSAGES ─ */
+.msg{
+  border-radius:12px;padding:.7rem 1rem;
+  font-size:.82rem;line-height:1.5;
+  display:none;align-items:flex-start;gap:.65rem;
+  margin-bottom:1.2rem;
+  animation:slideIn .25s ease;
+}
+.msg.show{display:flex}
+.msg-err{background:rgba(240,82,82,.07);border:1px solid rgba(240,82,82,.25);color:var(--red)}
+.msg-ok{background:rgba(15,186,138,.07);border:1px solid rgba(15,186,138,.25);color:var(--green)}
+.msg-ico{font-size:.95rem;flex-shrink:0;margin-top:.1rem}
+@keyframes slideIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─ FORM HEADER ─ */
+.f-title{
+  font-family:var(--serif);
+  font-size:1.25rem;font-weight:400;
+  margin-bottom:.25rem;
+  animation:rise .65s cubic-bezier(.2,1,.3,1) .2s both;
+}
+.f-sub{
+  font-size:.8rem;color:var(--muted);font-weight:300;
+  margin-bottom:1.75rem;
+  animation:rise .65s cubic-bezier(.2,1,.3,1) .24s both;
+}
+
+/* ─ FIELDS ─ */
+.field{margin-bottom:1.1rem;animation:rise .65s cubic-bezier(.2,1,.3,1) .28s both}
+.field+.field{animation-delay:.32s}
+.field label{
+  display:block;font-size:.73rem;font-weight:500;
+  color:var(--muted);letter-spacing:.4px;
+  margin-bottom:.5rem;text-transform:uppercase;
+}
+.input-wrap{position:relative}
+.input-icon{
+  position:absolute;left:1rem;top:50%;transform:translateY(-50%);
+  color:var(--muted2);font-size:.95rem;pointer-events:none;
+  transition:color .2s;
+}
+.input-wrap:focus-within .input-icon{color:var(--gold)}
+
+input[type=email],input[type=password],input[type=text]{
+  width:100%;
+  padding:.875rem 3rem .875rem 2.9rem;
+  background:var(--bg);
+  border:1.5px solid var(--border);
+  border-radius:14px;
+  color:var(--text);
+  font-size:.9rem;font-family:var(--font);
+  outline:none;
+  transition:border-color .25s,box-shadow .25s,background .25s;
+  -webkit-appearance:none;
+  /* prevent iOS zooming */
+  font-size:16px;
+}
+input:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px var(--gold-glow);
+  background:var(--surface2);
+}
+input::placeholder{color:var(--muted2)}
+
+/* password eye toggle */
+.pw-eye{
+  position:absolute;right:.9rem;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;
+  color:var(--muted2);font-size:.8rem;font-weight:500;
+  font-family:var(--font);
+  padding:.3rem .5rem;border-radius:8px;
+  transition:color .2s,background .2s;
+  white-space:nowrap;
+}
+.pw-eye:hover{color:var(--gold);background:var(--gold-faint)}
+
+/* ─ FORGOT ─ */
+.forgot-row{
+  text-align:right;margin:-0.4rem 0 1.25rem;
+  animation:rise .65s cubic-bezier(.2,1,.3,1) .36s both;
+}
+.forgot-link{
+  font-size:.78rem;color:var(--muted);text-decoration:none;
+  transition:color .2s;
+}
+.forgot-link:hover{color:var(--gold)}
+
+/* ─ SUBMIT BUTTON ─ */
+.btn{
+  width:100%;padding:.9rem 1rem;
+  background:var(--gold);
+  color:#0D0A02;font-weight:600;font-size:.92rem;
+  font-family:var(--font);letter-spacing:.02em;
+  border:none;border-radius:14px;cursor:pointer;
+  transition:background .2s,transform .15s,box-shadow .2s;
+  box-shadow:0 4px 22px rgba(232,171,45,.28);
+  position:relative;overflow:hidden;
+  animation:rise .65s cubic-bezier(.2,1,.3,1) .4s both;
+}
+.btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(rgba(255,255,255,.12),transparent);
+  opacity:0;transition:opacity .2s;
+}
+.btn:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 8px 30px rgba(232,171,45,.38)}
+.btn:hover::before{opacity:1}
+.btn:active{transform:translateY(0)}
+.btn:disabled{background:var(--border2);color:var(--muted);cursor:not-allowed;box-shadow:none;transform:none}
+.btn.loading .btn-text{display:none}
+.btn.loading .spin{display:block}
+.spin{
+  display:none;width:18px;height:18px;
+  border:2px solid rgba(0,0,0,.2);border-top-color:#000;
+  border-radius:50%;animation:rot .65s linear infinite;margin:0 auto;
+}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ─ TRUST STRIP ─ */
+.trust{
+  display:flex;justify-content:center;gap:clamp(.8rem,3vw,1.5rem);
+  flex-wrap:wrap;margin-top:1.5rem;
+  animation:rise .65s cubic-bezier(.2,1,.3,1) .48s both;
+}
+.trust-item{
+  display:flex;align-items:center;gap:.4rem;
+  font-size:.7rem;color:var(--muted2);
+}
+.trust-item span{font-size:.85rem}
+
+/* ─ DIVIDER ─ */
+.div-row{
+  display:flex;align-items:center;gap:1rem;margin:1.5rem 0;
+  animation:rise .65s cubic-bezier(.2,1,.3,1) .44s both;
+}
+.div-line{flex:1;height:1px;background:var(--border)}
+.div-txt{font-size:.72rem;color:var(--muted2)}
+
+/* ─ FORMS TOGGLING ─ */
+.login-form.hidden{display:none}
+.forgot-form{display:none}
+.forgot-form.active{display:block}
+
+/* ─ BACK BUTTON ─ */
+.back-btn{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-size:.8rem;color:var(--muted);font-family:var(--font);
+  background:none;border:none;cursor:pointer;padding:0;
+  margin-bottom:1.25rem;transition:color .2s;
+}
+.back-btn:hover{color:var(--gold)}
+
+/* ─ MOBILE SHEET STYLE ─ */
+@media(max-width:500px){
+  body{overflow-y:auto}
+  html,body{height:auto;min-height:100%;overflow:initial}
+  .page{
+    align-items:flex-end;
+    min-height:100vh;min-height:100dvh;
+    padding-top:2rem;
+  }
+  .card{
+    border-radius:26px 26px 0 0;
+    padding:2rem 1.4rem calc(env(safe-area-inset-bottom,0px) + 2rem);
+    max-width:100%;
+    border-bottom:none;
+    box-shadow:0 -12px 60px rgba(0,0,0,.5);
+  }
+}
+
+/* ─ TABLET ─ */
+@media(min-width:501px) and (max-width:800px){
+  .card{max-width:400px}
+}
+
+/* ─ DESKTOP SPLIT (optional subtle) ─ */
+@media(min-width:1024px){
+  .page{grid-template-columns:1fr;place-items:center}
+  .card{
+    padding:3rem 2.75rem;
+    border-radius:32px;
+  }
+}
+
+/* ─ REDUCE MOTION ─ */
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:1ms!important;transition-duration:1ms!important}
+}
+</style>
 </head>
-
 <body>
 
-    <!-- Background effects -->
-    <div class="bg-glow bg-glow-1"></div>
-    <div class="bg-glow bg-glow-2"></div>
-    <div class="bg-grid"></div>
+<!-- Background -->
+<div class="canvas">
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <div class="orb orb-c"></div>
+  <div class="grid-overlay"></div>
+</div>
 
-    <div class="wrapper">
-        <div class="login-card">
+<div class="page">
+  <div class="card">
 
-            <!-- Logo -->
-            <div class="logo-wrap">
-                <div class="logo-icon">💼</div>
-                <div class="logo-name">MARCSFUNDHANG</div>
-                <div class="logo-tagline">Manage your investments, simply.</div>
-            </div>
-
-            <!-- Error / Success messages -->
-            <div class="msg msg-error" id="errorMsg">
-                <span class="msg-icon">⚠️</span>
-                <span id="errorText"></span>
-            </div>
-            <div class="msg msg-success" id="successMsg">
-                <span class="msg-icon">✅</span>
-                <span id="successText"></span>
-            </div>
-
-            <!-- LOGIN FORM -->
-            <div class="login-form" id="loginForm">
-                <div class="form-title">Welcome back 👋</div>
-                <div class="form-sub">Sign in to your investor account</div>
-
-                <div class="field">
-                    <label>Email Address</label>
-                    <div class="input-wrap">
-                        <input type="email" id="email" placeholder="you@example.com" autocomplete="email"
-                            onkeydown="if(event.key==='Enter') document.getElementById('password').focus()" />
-                        <span class="input-icon">📧</span>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label>Password</label>
-                    <div class="input-wrap">
-                        <input type="password" id="password" placeholder="Enter your password"
-                            autocomplete="current-password" onkeydown="if(event.key==='Enter') login()" />
-                        <span class="input-icon">🔒</span>
-                        <button class="pw-toggle" type="button" onclick="togglePw('password', this)">Show</button>
-                    </div>
-                </div>
-
-                <div class="forgot-wrap">
-                    <a class="forgot-link" href="#" onclick="showForgot(); return false;">Forgot password?</a>
-                </div>
-
-                <button class="btn-login" id="loginBtn" onclick="login()">
-                    <span class="btn-text">Sign In</span>
-                    <div class="spinner"></div>
-                </button>
-
-                <div class="trust-row">
-                    <div class="trust-item"><span>🔒</span> Secure login</div>
-                    <div class="trust-item"><span>🛡️</span> Data encrypted</div>
-                    <div class="trust-item"><span>✅</span> 100% private</div>
-                </div>
-            </div>
-
-            <!-- FORGOT PASSWORD FORM -->
-            <div class="forgot-form" id="forgotForm">
-                <button class="back-btn" onclick="showLogin()">← Back to login</button>
-                <div class="form-title">Reset password 🔑</div>
-                <div class="form-sub">Enter your email and we'll send you a reset link</div>
-
-                <div class="field">
-                    <label>Email Address</label>
-                    <div class="input-wrap">
-                        <input type="email" id="resetEmail" placeholder="you@example.com" autocomplete="email"
-                            onkeydown="if(event.key==='Enter') resetPassword()" />
-                        <span class="input-icon">📧</span>
-                    </div>
-                </div>
-
-                <button class="btn-login" id="resetBtn" onclick="resetPassword()">
-                    <span class="btn-text">Send Reset Link</span>
-                    <div class="spinner"></div>
-                </button>
-            </div>
-
-        </div>
+    <!-- Logo -->
+    <div class="logo">
+      <div class="logo-badge">💼</div>
+      <div class="logo-name">MARCSFUNDHANG</div>
+      <div class="logo-sub">Manage your investments, simply.</div>
     </div>
 
-    <script>
-        // ── TOGGLE PASSWORD VISIBILITY ──
-        function togglePw(inputId, btn) {
-            const input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                btn.textContent = 'Hide';
-            } else {
-                input.type = 'password';
-                btn.textContent = 'Show';
-            }
-        }
+    <!-- Alerts -->
+    <div class="msg msg-err" id="errMsg"><span class="msg-ico">⚠️</span><span id="errTxt"></span></div>
+    <div class="msg msg-ok"  id="okMsg"> <span class="msg-ico">✅</span><span id="okTxt"></span></div>
 
-        // ── SHOW / HIDE FORMS ──
-        function showForgot() {
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('forgotForm').classList.add('active');
-            hideMessages();
-        }
+    <!-- LOGIN FORM -->
+    <div class="login-form" id="loginForm">
+      <div class="f-title">Welcome back 👋</div>
+      <div class="f-sub">Sign in to your investor account</div>
 
-        function showLogin() {
-            document.getElementById('forgotForm').classList.remove('active');
-            document.getElementById('loginForm').classList.remove('hidden');
-            hideMessages();
-        }
+      <div class="field">
+        <label for="email">Email Address</label>
+        <div class="input-wrap">
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email"
+            onkeydown="if(event.key==='Enter')document.getElementById('password').focus()"/>
+          <span class="input-icon">📧</span>
+        </div>
+      </div>
 
-        // ── MESSAGES ──
-        function showError(msg) {
-            hideMessages();
-            document.getElementById('errorText').textContent = msg;
-            document.getElementById('errorMsg').classList.add('show');
-        }
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"
+            onkeydown="if(event.key==='Enter')login()"/>
+          <span class="input-icon">🔒</span>
+          <button class="pw-eye" type="button" onclick="togglePw('password',this)" aria-label="Toggle password visibility">Show</button>
+        </div>
+      </div>
 
-        function showSuccess(msg) {
-            hideMessages();
-            document.getElementById('successText').textContent = msg;
-            document.getElementById('successMsg').classList.add('show');
-        }
+      <div class="forgot-row">
+        <a class="forgot-link" href="#" onclick="showForgot();return false;">Forgot password?</a>
+      </div>
 
-        function hideMessages() {
-            document.getElementById('errorMsg').classList.remove('show');
-            document.getElementById('successMsg').classList.remove('show');
-        }
+      <button class="btn" id="loginBtn" onclick="login()">
+        <span class="btn-text">Sign In</span>
+        <div class="spin"></div>
+      </button>
 
-        // ── SET LOADING STATE ──
-        function setLoading(btnId, loading) {
-            const btn = document.getElementById(btnId);
-            if (loading) {
-                btn.classList.add('loading');
-                btn.disabled = true;
-            } else {
-                btn.classList.remove('loading');
-                btn.disabled = false;
-            }
-        }
+      <div class="trust">
+        <div class="trust-item"><span>🔒</span> Secure login</div>
+        <div class="trust-item"><span>🛡️</span> Encrypted</div>
+        <div class="trust-item"><span>✅</span> 100% private</div>
+      </div>
+    </div>
 
-        // ── LOGIN ──
-        async function login() {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
+    <!-- FORGOT PASSWORD FORM -->
+    <div class="forgot-form" id="forgotForm">
+      <button class="back-btn" onclick="showLogin()">← Back to login</button>
+      <div class="f-title">Reset password 🔑</div>
+      <div class="f-sub">We'll email you a link to reset your password</div>
 
-            if (!email || !password) {
-                showError('Please enter your email and password.');
-                return;
-            }
+      <div class="field">
+        <label for="resetEmail">Email Address</label>
+        <div class="input-wrap">
+          <input type="email" id="resetEmail" placeholder="you@example.com" autocomplete="email"
+            onkeydown="if(event.key==='Enter')resetPassword()"/>
+          <span class="input-icon">📧</span>
+        </div>
+      </div>
 
-            setLoading('loginBtn', true);
-            hideMessages();
+      <button class="btn" id="resetBtn" onclick="resetPassword()">
+        <span class="btn-text">Send Reset Link</span>
+        <div class="spin"></div>
+      </button>
+    </div>
 
-            try {
-                const { data, error } = await db.auth.signInWithPassword({ email, password });
+  </div>
+</div>
 
-                if (error) {
-                    showError('Invalid email or password. Please try again.');
-                    setLoading('loginBtn', false);
-                    return;
-                }
+<script>
+function togglePw(id,btn){
+  const inp=document.getElementById(id);
+  inp.type=inp.type==='password'?'text':'password';
+  btn.textContent=inp.type==='password'?'Show':'Hide';
+}
 
-                // Get profile
-                const { data: profile, error: profileError } = await db
-                    .from('profiles')
-                    .select('role, is_active, full_name')
-                    .eq('id', data.user.id)
-                    .single();
+function showForgot(){
+  document.getElementById('loginForm').classList.add('hidden');
+  document.getElementById('forgotForm').classList.add('active');
+  clearMsgs();
+}
+function showLogin(){
+  document.getElementById('forgotForm').classList.remove('active');
+  document.getElementById('loginForm').classList.remove('hidden');
+  clearMsgs();
+}
 
-                if (profileError || !profile) {
-                    showError('Account not found. Please contact MARCSFUNDHANG.');
-                    await db.auth.signOut();
-                    setLoading('loginBtn', false);
-                    return;
-                }
+function showErr(m){clearMsgs();document.getElementById('errTxt').textContent=m;document.getElementById('errMsg').classList.add('show')}
+function showOk(m){clearMsgs();document.getElementById('okTxt').textContent=m;document.getElementById('okMsg').classList.add('show')}
+function clearMsgs(){document.getElementById('errMsg').classList.remove('show');document.getElementById('okMsg').classList.remove('show')}
 
-                if (!profile.is_active) {
-                    showError('Your account has been suspended. Please contact MARCSFUNDHANG.');
-                    await db.auth.signOut();
-                    setLoading('loginBtn', false);
-                    return;
-                }
+function setLoading(id,on){
+  const b=document.getElementById(id);
+  b.classList.toggle('loading',on);
+  b.disabled=on;
+}
 
-                // Redirect
-                if (profile.role === 'admin') {
-                    window.location.href = 'admin-dashboard.html';
-                } else {
-                    window.location.href = 'dashboard.html';
-                }
+async function login(){
+  const email=document.getElementById('email').value.trim();
+  const pw=document.getElementById('password').value;
+  if(!email||!pw){showErr('Please enter your email and password.');return}
+  setLoading('loginBtn',true);clearMsgs();
+  try{
+    const{data,error}=await db.auth.signInWithPassword({email,password:pw});
+    if(error){showErr('Invalid email or password. Please try again.');setLoading('loginBtn',false);return}
+    const{data:prof,error:pe}=await db.from('profiles').select('role,is_active,full_name').eq('id',data.user.id).single();
+    if(pe||!prof){showErr('Account not found. Please contact MARCSFUNDHANG.');await db.auth.signOut();setLoading('loginBtn',false);return}
+    if(!prof.is_active){showErr('Your account has been suspended. Please contact MARCSFUNDHANG.');await db.auth.signOut();setLoading('loginBtn',false);return}
+    window.location.href=prof.role==='admin'?'admin-dashboard.html':'dashboard.html';
+  }catch(e){showErr('Something went wrong. Please try again.');setLoading('loginBtn',false)}
+}
 
-            } catch (err) {
-                showError('Something went wrong. Please try again.');
-                setLoading('loginBtn', false);
-            }
-        }
+async function resetPassword(){
+  const email=document.getElementById('resetEmail').value.trim();
+  if(!email){showErr('Please enter your email address.');return}
+  setLoading('resetBtn',true);clearMsgs();
+  try{
+    const{error}=await db.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+'/set-password.html'});
+    if(error){showErr('Something went wrong. Please try again.')}
+    else{showOk('Reset link sent! Check your email inbox.');document.getElementById('resetEmail').value=''}
+  }catch(e){showErr('Something went wrong. Please try again.')}
+  setLoading('resetBtn',false);
+}
 
-        // ── RESET PASSWORD ──
-        async function resetPassword() {
-            const email = document.getElementById('resetEmail').value.trim();
-
-            if (!email) {
-                showError('Please enter your email address.');
-                return;
-            }
-
-            setLoading('resetBtn', true);
-            hideMessages();
-
-            try {
-                const { error } = await db.auth.resetPasswordForEmail(email, {
-                    redirectTo: window.location.origin + '/set-password.html'
-                });
-
-                if (error) {
-                    showError('Something went wrong. Please try again.');
-                } else {
-                    showSuccess('Reset link sent! Please check your email inbox.');
-                    document.getElementById('resetEmail').value = '';
-                }
-            } catch (err) {
-                showError('Something went wrong. Please try again.');
-            }
-
-            setLoading('resetBtn', false);
-        }
-
-        // ── CHECK IF ALREADY LOGGED IN ──
-        async function checkExistingSession() {
-            const { data: { session } } = await db.auth.getSession();
-            if (session) {
-                const { data: profile } = await db
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', session.user.id)
-                    .single();
-                if (profile?.role === 'admin') {
-                    window.location.href = 'admin-dashboard.html';
-                } else if (profile?.role === 'client') {
-                    window.location.href = 'dashboard.html';
-                }
-            }
-        }
-
-        checkExistingSession();
-    </script>
-
+async function checkSession(){
+  try{
+    const{data:{session}}=await db.auth.getSession();
+    if(session){
+      const{data:p}=await db.from('profiles').select('role').eq('id',session.user.id).single();
+      if(p?.role==='admin')window.location.href='admin-dashboard.html';
+      else if(p?.role==='client')window.location.href='dashboard.html';
+    }
+  }catch(e){}
+}
+checkSession();
+</script>
 </body>
-
 </html>
